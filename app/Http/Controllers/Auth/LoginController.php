@@ -37,4 +37,11 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+
+    public function showLoginForm()
+    {
+        $pageConfigs = ['myLayout' => 'blank'];
+        return view('content.authentications.auth-login-cover', ['pageConfigs' => $pageConfigs]);
+    }
+
 }
