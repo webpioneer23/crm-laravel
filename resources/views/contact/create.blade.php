@@ -22,13 +22,25 @@
 @section('content')
 <h4 class="py-3 mb-4"><span class="text-muted fw-light">Contact/</span> Create</h4>
 
-
-
 <div class="row">
   <div class="card mb-4">
     <div class="card-body">
       <form method="post" action="{{route('contact.store')}}" enctype="multipart/form-data">
         @csrf
+        <div class="row mb-3">
+          <label class="form-check-label col-sm-2" for="contact_address">Residing Address (multiple)</label>
+          <div class="col-sm-8">
+            <select id="contact_address" class="select2 form-select form-select-lg" name="contact_address[]" data-allow-clear="true" multiple>
+              @foreach($addresses as $address)
+              <option value="{{$address->id}}">{{$address->street}}, {{$address->city}}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAddressModal">Add Property</button>
+          </div>
+        </div>
+
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="basic-default-name">First Name *</label>
           <div class="col-sm-10">
@@ -36,41 +48,41 @@
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Last Name *</label>
+          <label class="col-sm-2 col-form-label" for="basic-default-name">Last Name</label>
           <div class="col-sm-10">
-            <input type="text" name="last_name" class="form-control" placeholder="Last Name" required />
+            <input type="text" name="last_name" class="form-control" placeholder="Last Name" />
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Full Legal Name *</label>
+          <label class="col-sm-2 col-form-label" for="basic-default-name">Full Legal Name</label>
           <div class="col-sm-10">
-            <input type="text" name="full_name" class="form-control" placeholder="Full Legal Name" required />
+            <input type="text" name="full_name" class="form-control" placeholder="Full Legal Name" />
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Mobile *</label>
+          <label class="col-sm-2 col-form-label" for="basic-default-name">Mobile</label>
           <div class="col-sm-10">
-            <input type="text" name="mobile" class="form-control" placeholder="Mobile" required />
+            <input type="text" name="mobile" class="form-control" placeholder="Mobile" />
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Email *</label>
+          <label class="col-sm-2 col-form-label" for="basic-default-name">Email</label>
           <div class="col-sm-10">
-            <input type="email" name="email" class="form-control" placeholder="Email" required />
+            <input type="email" name="email" class="form-control" placeholder="Email" />
           </div>
         </div>
 
-
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-phone">Photo *</label>
+          <label class="col-sm-2 col-form-label" for="basic-default-phone">Photo</label>
           <div class="col-sm-10">
-            <input class="form-control" type="file" name="photo" required>
+            <input class="form-control" type="file" name="photo">
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-phone">Tags *</label>
+          <label class="col-sm-2 col-form-label" for="basic-default-phone">Tags</label>
           <div class="col-sm-10">
-            <select name="tags[]" class="select2 form-select" multiple>
+            <input type="hidden" id="temp_tags">
+            <select name="tags[]" class="select2 form-select" id="tags" multiple>
               @foreach($tags as $tag)
               <option value="{{$tag->id}}">{{$tag->name}}</option>
               @endforeach
@@ -78,46 +90,28 @@
           </div>
         </div>
         <div class="row mb-3">
+          <label class="form-check-label col-sm-2">Owner / Tenant</label>
+          <div class="col-sm-10 mt-2">
+            <div class="form-check form-check-inline">
+              <input name="rent_type" class="form-check-input" id="rental-owner" type="radio" value="Owner" checked />
+              <label class="form-check-label" for="rental-owner">Owner</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input name="rent_type" class="form-check-input" id="rental-tenant" type="radio" value="Tenant" />
+              <label class="form-check-label" for="rental-tenant">Tenant</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="basic-default-message">Notes</label>
           <div class="col-sm-10">
             <textarea name="notes" class="form-control" placeholder=""></textarea>
           </div>
         </div>
 
-        <div class="row mb-3">
-          <label class="form-check-label col-sm-2">Address *</label>
-          <div class="col-sm-10 mt-2">
-            <div class="form-check form-check-inline">
-              <input name="address_type" class="form-check-input" value="new" id="new-address-type" type="radio" checked="" onclick="selectAddressType('new')" />
-              <label class="form-check-label" for="new-address-type">New Address</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input name="address_type" class="form-check-input" value="old" id="exist-address-type" type="radio" onclick="selectAddressType('exist')" />
-              <label class="form-check-label" for="exist-address-type">Existing Address</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="row mb-3 new-address">
-          <label class="form-check-label col-sm-2"></label>
-          <div class="col-sm-10">
-            <textarea id="new_address" name="address" class="form-control" placeholder="" required></textarea>
-          </div>
-        </div>
-
-        <div class="row mb-3 exist-address d-none">
-          <label class="form-check-label col-sm-2"></label>
-          <div class="col-sm-10">
-            <select id="old_address" class="select2 form-select form-select-lg" name="address_old" data-allow-clear="true" required>
-              @foreach($addresses as $address)
-              <option value="{{$address->id}}">{{$address->street}}, {{$address->city}}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
         <div class="row justify-content-end">
-          <div class="col-sm-10">
+          <div class="col-sm-4 text-end">
             <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </div>
@@ -125,27 +119,7 @@
     </div>
   </div>
 </div>
-<script>
-  function selectAddressType(type) {
-    console.log({
-      type
-    })
-    if (type === 'new') {
-      $("#new_address").attr("name", 'address');
-      $("#old_address").attr("name", 'old_address');
-      $(".exist-address").addClass('d-none');
-      $(".new-address").removeClass('d-none')
-    } else {
-      var newTextarea = $(".new-address textarea");
-      // Remove the 'required' attribute
-      newTextarea[0].removeAttribute('required');
 
-      $("#new_address").attr("name", 'new_address');
-      $("#old_address").attr("name", 'address');
+@include('contact/new-address')
 
-      $(".exist-address").removeClass('d-none')
-      $(".new-address").addClass('d-none');
-    }
-  }
-</script>
 @endsection

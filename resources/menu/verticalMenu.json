@@ -4,7 +4,41 @@
       "name": "Dashboards",
       "icon": "menu-icon tf-icons ti ti-smart-home",
       "slug": "home",
-      "url": "home"
+      "url": "/"
+    },
+    {
+      "name": "Complex",
+      "icon": "menu-icon tf-icons ti ti-building-skyscraper",
+      "slug": "complex",
+      "submenu": [
+        {
+          "url": "complex",
+          "name": "List",
+          "slug": "complex.index"
+        },
+        {
+          "url": "complex/create",
+          "name": "Create",
+          "slug": "complex.create"
+        }
+      ]
+    },
+    {
+      "name": "Appraisals",
+      "icon": "menu-icon tf-icons ti ti-home-edit",
+      "slug": "appraisal",
+      "submenu": [
+        {
+          "url": "appraisal",
+          "name": "List",
+          "slug": "appraisal.index"
+        },
+        {
+          "url": "appraisal/create",
+          "name": "Create",
+          "slug": "appraisal.create"
+        }
+      ]
     },
     {
       "name": "Address",
@@ -13,12 +47,12 @@
       "submenu": [
         {
           "url": "address",
-          "name": "Address List",
+          "name": "List",
           "slug": "address.index"
         },
         {
           "url": "address/create",
-          "name": "Address create",
+          "name": "Create",
           "slug": "address.create"
         }
       ]
@@ -30,12 +64,12 @@
       "submenu": [
         {
           "url": "contact",
-          "name": "Contact List",
+          "name": "List",
           "slug": "contact.index"
         },
         {
           "url": "contact/create",
-          "name": "Contact create",
+          "name": "Create",
           "slug": "contact.create"
         }
       ]
@@ -47,12 +81,12 @@
       "submenu": [
         {
           "url": "tag",
-          "name": "Tag List",
+          "name": "List",
           "slug": "tag.index"
         },
         {
           "url": "tag/create",
-          "name": "Tag create",
+          "name": "Create",
           "slug": "tag.create"
         }
       ]

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AppraisalController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
 use App\Http\Controllers\dashboard\Analytics;
@@ -159,6 +160,7 @@ use App\Http\Controllers\tables\DatatableAdvanced;
 use App\Http\Controllers\tables\DatatableExtensions;
 use App\Http\Controllers\charts\ApexCharts;
 use App\Http\Controllers\charts\ChartJs;
+use App\Http\Controllers\ComplexController;
 use App\Http\Controllers\maps\Leaflet;
 
 use App\Http\Controllers\ContactController;
@@ -370,6 +372,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/', [Analytics::class, 'index'])->name('home');
 
     Route::resource('/tag', TagController::class);
+    Route::post('/contact-address', [AddressController::class, 'contact_address'])->name('contact.address');
     Route::resource('/contact', ContactController::class);
     Route::resource('/address', AddressController::class);
+    Route::resource('/appraisal', AppraisalController::class);
+    Route::resource('/complex', ComplexController::class);
 });

@@ -20,7 +20,7 @@ $customizerHidden = ($customizerHidden ?? '');
 $navbarDetached = 'navbar-detached';
 $menuFixed = (isset($configData['menuFixed']) ? $configData['menuFixed'] : '');
 if(isset($navbarType)) {
-  $configData['navbarType'] = $navbarType;
+$configData['navbarType'] = $navbarType;
 }
 $navbarType = (isset($configData['navbarType']) ? $configData['navbarType'] : '');
 $footerFixed = (isset($configData['footerFixed']) ? $configData['footerFixed'] : '');
