@@ -98,4 +98,26 @@ class AddressController extends Controller
         $address->delete();
         return redirect()->route('address.index');
     }
+
+    public function contact_address(Request $request)
+    {
+        $request->validate([
+            'property_type' => 'required|string',
+            'street' => 'required|string',
+            'suburb' => 'required|string',
+            'city' => 'required|string',
+            'google_address' => 'required|string',
+        ]);
+
+        Address::create([
+            'property_type' => $request->property_type,
+            'unit_number' => $request->unit_number,
+            'street' => $request->street,
+            'building' => $request->building,
+            'suburb' => $request->suburb,
+            'city' => $request->city,
+            'google_address' => $request->google_address,
+        ]);
+        return redirect()->back();
+    }
 }

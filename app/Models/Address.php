@@ -18,4 +18,11 @@ class Address extends Model
         'suburb',
         'city',
     ];
+
+    public function getFullContactsAttribute()
+    {
+        $contact_addresses = AddressContact::where('address_id', $this->id)->pluck('contact_id');
+        $contacts = Contact::whereIn('id', $contact_addresses)->get();
+        return $contacts;
+    }
 }

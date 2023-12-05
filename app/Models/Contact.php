@@ -15,33 +15,22 @@ class Contact extends Model
         'full_name',
         'mobile',
         'email',
-        'address',
         'photo',
-        'tags',
         'notes',
-        'address_type'
+        'rent_type',
     ];
 
     public function getFullAddressAttribute()
     {
-        $address  = Address::find($this->address);
-        if ($address) {
-            return "$address->street, $address->city ";
-        }
-        return $this->address;
+        $contact_address = AddressContact::where('contact_id', $this->id)->pluck('address_id');
+        $address_list = Address::whereIn('id', $contact_address)->get();
+        return $address_list;
     }
 
     public function getFullTagsAttribute()
     {
-        $tags = json_decode($this->tags);
-        if ($tags && count($tags) > 0) {
-            $tag_list = Tag::whereIn('id', $tags)->pluck('name');
-            $result = [];
-            foreach ($tag_list as $key => $value) {
-                array_push($result, $value);
-            }
-            return implode(",", $result);
-        }
-        return "";
+        $tag_contacts = TagContact::where('contact_id', $this->id)->pluck('tag_id');
+        $tag_list = Tag::whereIn('id', $tag_contacts)->get();
+        return $tag_list;
     }
 }

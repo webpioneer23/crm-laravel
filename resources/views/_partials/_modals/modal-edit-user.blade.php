@@ -8,6 +8,7 @@
           <h3 class="mb-2">Edit User Information</h3>
           <p class="text-muted">Updating user details will receive a privacy audit.</p>
         </div>
+
         <form id="editUserForm" class="row g-3" onsubmit="return false">
           <div class="col-12 col-md-6">
             <label class="form-label" for="modalEditUserFirstName">First Name</label>

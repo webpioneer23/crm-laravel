@@ -24,6 +24,7 @@
             <th>Building Name</th>
             <th>Suburb</th>
             <th>City</th>
+            <th>Properties</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -36,6 +37,13 @@
             <td> {{$item->building}}</td>
             <td> {{$item->suburb}}</td>
             <td> {{$item->city}}</td>
+            <td>
+              <ul>
+                @foreach($item->full_contacts as $contact)
+                <li>{{$contact->first_name}}</li>
+                @endforeach
+              </ul>
+            </td>
             <td>
               <div class="dropdown">
                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
