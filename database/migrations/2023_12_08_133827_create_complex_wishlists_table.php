@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tag_contacts', function (Blueprint $table) {
+        Schema::create('complex_wishlists', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tag_id');
-            $table->foreign('tag_id')->references('id')->on('tags')->onDelete('cascade');
-
             $table->unsignedBigInteger('contact_id');
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
-            $table->softDeletes();
 
+            $table->unsignedBigInteger('complex_id');
+            $table->foreign('complex_id')->references('id')->on('complexes')->onDelete('cascade');
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tag_contacts');
+        Schema::dropIfExists('complex_wishlists');
     }
 };

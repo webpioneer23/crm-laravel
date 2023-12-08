@@ -27,6 +27,7 @@ package-lock.log
 /.vscode
 
 /public/css
+/public/uploads
 /public/js
 /public/mix-manifest.json
 # But not these files...
