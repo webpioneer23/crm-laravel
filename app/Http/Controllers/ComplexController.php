@@ -146,15 +146,19 @@ class ComplexController extends Controller
             'note' => $request->note,
         ]);
 
-        AFile::where(['target_id' =>  $complex->id, 'type' => 'complex'])->delete();
         if ($request->file('attached')) {
+            AFile::where(['target_id' =>  $complex->id, 'type' => 'complex'])->delete();
             $files = $request->file('attached');
             foreach ($files as $file) {
                 $attached_path = $file->store('files', 'images');
+                $file_name = $file->getClientOriginalName();
+                $file_ext = $file->extension();
                 AFile::create([
                     'path' => $attached_path,
+                    'file_name' => $file_name,
+                    'file_ext' => $file_ext,
                     'target_id' => $complex->id,
-                    'type' => 'complex'
+                    'type' => 'complex',
                 ]);
             }
         }
