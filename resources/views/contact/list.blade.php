@@ -82,9 +82,9 @@
         <tr>
           <td>
             @if($item->photo)
-            <img src="{{ asset('uploads/' . $item->photo) }}" width="80" alt="{{$item->first_name}}" class="radius-10">
+            <img src="{{ asset('uploads/' . $item->photo) }}" width="80" height="60" alt="{{$item->first_name}}" class="radius-10">
             @else
-            <img src="{{ asset('assets/custom/img/default-house.png') }}" width="80" alt="{{$item->first_name}}" class="radius-10">
+            <img src="{{ asset('assets/custom/img/default-house.png') }}" width="80" height="60" alt="{{$item->first_name}}" class="radius-10">
             @endif
           </td>
           <td>

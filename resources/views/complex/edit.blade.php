@@ -17,138 +17,140 @@
 
 @section('page-script')
 <script src="{{asset('assets/js/form-layouts.js')}}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB87UDyoVRfBpSKjUqto7YrwseLKlSY1Q4&callback=initAutocomplete&libraries=places&v=weekly" defer></script>
 <script>
-  const tags = $("#temp_tags").val();
+  let autocomplete;
+  let address1Field;
 
-  const tag_list = JSON.parse(tags);
-  $("#tags").val(tag_list);
-  console.log({
-    tag_list
-  })
+  function initAutocomplete() {
+    address1Field = document.querySelector("#street-address");
+    // Create the autocomplete object, restricting the search predictions to
+    // addresses in the US and Canada.
+    autocomplete = new google.maps.places.Autocomplete(address1Field, {
+      // componentRestrictions: {
+      //   country: ["us", "ca"]
+      // },
+      fields: ["address_components", "geometry"],
+      types: ["address"],
+    });
+    address1Field.focus();
+    // When the user selects an address from the drop-down, populate the
+    // address fields in the form.
+    // autocomplete.addListener("place_changed", fillInAddress);
+  }
 
-  function selectAddressType(type) {
-    console.log({
-      type
-    })
-    if (type === 'new') {
-      $(".exist-address").addClass('d-none');
-      $(".new-address").removeClass('d-none')
-    } else {
-      var newTextarea = $(".new-address textarea");
-      // Remove the 'required' attribute
-      newTextarea[0].removeAttribute('required');
+  function fillInAddress() {
 
-      $(".exist-address").removeClass('d-none')
-      $(".new-address").addClass('d-none');
+    // Get the place details from the autocomplete object.
+    const place = autocomplete.getPlace();
+    let address1 = "";
+
+    // Get each component of the address from the place details,
+    // and then fill-in the corresponding field on the form.
+    // place.address_components are google.maps.GeocoderAddressComponent objects
+    // which are documented at http://goo.gle/3l5i5Mr
+    for (const component of place.address_components) {
+      // @ts-ignore remove once typings fixed
+      const componentType = component.types[0];
+
+      switch (componentType) {
+        case "street_number": {
+          address1 = `${component.long_name} ${address1}`;
+          break;
+        }
+
+        case "route": {
+          address1 += component.long_name;
+          break;
+        }
+      }
     }
+
+    document.querySelector("#street-address").value = address1;
   }
 </script>
 @endsection
 
 @section('content')
-<h4 class="py-3 mb-4"><span class="text-muted fw-light">Contact/</span> Edit</h4>
+<h4 class="py-3 mb-4"><span class="text-muted fw-light">Complex/</span> Edit</h4>
 
-
+<!-- Basic Layout -->
 <div class="row">
   <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Complex Detail</h5>
+    </div>
     <div class="card-body">
-      <form method="post" action="{{route('contact.update', $contact->id)}}" enctype="multipart/form-data">
+      <form method="post" action="{{route('complex.update', $complex->id)}}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">First Name *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->first_name}}" name="first_name" class="form-control" placeholder="First Name" required />
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="street-address">Street Address</label>
+          <input type="text" class="form-control" id="street-address" name="street_address" value="{{$complex->street_address}}" placeholder="Street Address" required />
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Last Name *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->last_name}}" name="last_name" class="form-control" placeholder="Last Name" required />
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="complex_name">Complex Name</label>
+          <input type="text" class="form-control" id="complex_name" name="name" value="{{$complex->name}}" placeholder="Complex Name" />
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Full Legal Name *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->full_name}}" name="full_name" class="form-control" placeholder="Full Legal Name" required />
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="year-build">Year Built</label>
+          <input type="text" class="form-control" id="year-build" name="year_built" value="{{$complex->year_built}}" placeholder="Year Built" />
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Mobile *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->mobile}}" name="mobile" class="form-control" placeholder="Mobile" required />
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="Architect">Architect</label>
+          <input type="text" class="form-control" id="Architect" name="architect" value="{{$complex->architect}}" placeholder="Architect" />
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Email *</label>
-          <div class="col-sm-10">
-            <input type="email" value="{{$contact->email}}" name="email" class="form-control" placeholder="Email" required />
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="Constructor">Constructor</label>
+          <input type="text" class="form-control" id="Constructor" name="constructor" value="{{$complex->constructor}}" placeholder="Constructor" />
         </div>
-
-
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-phone">Photo </label>
-          <div class="col-sm-10">
-            <input class="form-control" type="file" name="photo">
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="number-units">Number of Units</label>
+          <input type="number" class="form-control" id="number-units" name="number_units" value="{{$complex->number_units}}" placeholder="Number of Units" />
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-phone">Tags *</label>
-          <div class="col-sm-10">
-            <input type="hidden" id="temp_tags" value="{{$contact->tags}}">
-            <select name="tags[]" class="select2 form-select" id="tags" multiple>
-              @foreach($tags as $tag)
-              <option value="{{$tag->id}}">{{$tag->name}}</option>
-              @endforeach
-            </select>
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="floors">Number of Floors</label>
+          <input type="number" class="form-control" id="floors" name="number_floors" value="{{$complex->number_floors}}" placeholder="Number of Floors" />
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-message">Notes</label>
-          <div class="col-sm-10">
-            <textarea name="notes" value="{{$contact->notes}}" class="form-control" placeholder=""></textarea>
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="property_type">Property Type</label>
+          <select name="property_type" class="select2 form-select" id="property_type">
+            <option value="Apartment" {{$complex->property_type == "Apartment" ? 'selected' : ''}}>Apartment</option>
+            <option value="Townhouse" {{$complex->property_type == "Townhouse" ? 'selected' : ''}}>Townhouse</option>
+            <option value="House" {{$complex->property_type == "House" ? 'selected' : ''}}>House</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="body_manager">Body Corporate Manager</label>
+          <input type="text" class="form-control" name="body_manager" value="{{$complex->body_manager}}" id="body_manager" placeholder="Body Corporate Manager" />
         </div>
 
-        <div class="row mb-3">
-          <label class="form-check-label col-sm-2">Address *</label>
-          <div class="col-sm-10 mt-2">
-            <div class="form-check form-check-inline">
-              <input name="address_type" class="form-check-input" id="new-address-type" type="radio" value="new" {{$contact->address_type == 'new' ? 'checked' : ''}} onclick="selectAddressType('new')" />
-              <label class="form-check-label" for="new-address-type">New Address</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input name="address_type" class="form-check-input" id="exist-address-type" type="radio" value="old" {{$contact->address_type == 'old' ? 'checked' : ''}} onclick="selectAddressType('exist')" />
-              <label class="form-check-label" for="exist-address-type">Existing Address</label>
-            </div>
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="note">Notes</label>
+          <textarea id="note" name="note" class="form-control" placeholder="Note">{{$complex->note}}</textarea>
         </div>
 
-        <div class="row mb-3 new-address {{$contact->address_type == 'new' ? '' : 'd-none'}}">
-          <label class="form-check-label col-sm-2"></label>
-          <div class="col-sm-10">
-            <textarea id="new_address" name="address_new" class="form-control" placeholder="" required>{{$contact->address_type == 'new' ? $contact->address : ''}}
-            </textarea>
-          </div>
+        <div class="mb-3">
+          <label class="form-label" for="attached">Files</label>
+          <input class="form-control" type="file" name="attached[]" accept=".pdf, .doc, .xls" multiple>
         </div>
 
-        <div class="row mb-3 exist-address  {{$contact->address_type == 'old' ? '' : 'd-none'}}">
-          <label class="form-check-label col-sm-2"></label>
-          <div class="col-sm-10">
-            <select id="old_address" class="select2 form-select form-select-lg" name="address_old" data-allow-clear="true" required>
-              @foreach($addresses as $address)
-              <option value="{{$address->id}}">{{$address->street}}, {{$address->city}}</option>
-              @endforeach
-            </select>
-          </div>
+        <div class="mb-3">
+          <?php
+          $address_ids = [];
+          foreach ($complex->full_address as $key => $add) {
+            array_push($address_ids, $add->id);
+          }
+          ?>
+          <label class="form-label" for="complex_address">Addresses</label>
+          <select id="complex_address" class="select2 form-select" name="complex_address[]" data-allow-clear="true" multiple>
+            @foreach($address_list as $address)
+            <option value="{{$address->id}}" {{in_array($address->id, $address_ids) ? 'selected' : ''}}>{{$address->street}}, {{$address->city}}</option>
+            @endforeach
+          </select>
         </div>
 
-        <div class="row justify-content-end">
-          <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">Save</button>
-          </div>
-        </div>
+        <button type="submit" class="btn btn-primary float-end">Save</button>
       </form>
     </div>
   </div>

@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('address_contacts', function (Blueprint $table) {
+        Schema::create('wishlist_tags', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('address_id');
-            $table->foreign('address_id')->references('id')->on('addresses')->onDelete('cascade');
+            $table->unsignedBigInteger('wishlist_id');
+            $table->foreign('wishlist_id')->references('id')->on('complex_wishlists')->onDelete('cascade');
 
-            $table->unsignedBigInteger('contact_id');
-            $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
+            $table->string('tag', 255);
 
             $table->softDeletes();
             $table->timestamps();
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('address_contacts');
+        Schema::dropIfExists('wishlist_tags');
     }
 };

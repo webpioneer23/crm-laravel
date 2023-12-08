@@ -377,4 +377,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/address', AddressController::class);
     Route::resource('/appraisal', AppraisalController::class);
     Route::resource('/complex', ComplexController::class);
+    Route::get('/complex-files/{id}', [ComplexController::class, 'preview_files'])->name('complex.files');
+    Route::post('/complex-wishlist/{id}', [ComplexController::class, 'wishlist_store'])->name('complex.wishlist.store');
+    Route::get('/complex-wishlist/{id}', [ComplexController::class, 'wishlist'])->name('complex.wishlist');
+    Route::get('/complex-wishlist/{id}/edit/{wishlist_id}', [ComplexController::class, 'wishlist_edit'])->name('complex.wishlist.edit');
+    Route::put('/complex-wishlist/{id}/update/{wishlist_id}', [ComplexController::class, 'wishlist_update'])->name('complex.wishlist.update');
+    Route::delete('/complex-wishlist/{wishlist_id}', [ComplexController::class, 'wishlist_delete'])->name('complex.wishlist.destroy');
 });
