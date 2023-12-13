@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AppraisalController;
+use App\Http\Controllers\ListingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
 use App\Http\Controllers\dashboard\Analytics;
@@ -383,4 +384,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/complex-wishlist/{id}/edit/{wishlist_id}', [ComplexController::class, 'wishlist_edit'])->name('complex.wishlist.edit');
     Route::put('/complex-wishlist/{id}/update/{wishlist_id}', [ComplexController::class, 'wishlist_update'])->name('complex.wishlist.update');
     Route::delete('/complex-wishlist/{wishlist_id}', [ComplexController::class, 'wishlist_delete'])->name('complex.wishlist.destroy');
+
+    Route::resource('/listing', ListingController::class);
 });
