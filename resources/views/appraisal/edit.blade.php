@@ -138,7 +138,7 @@
           <div class="col-sm-10">
             <select id="old_address" class="select2 form-select form-select-lg" name="address_old" data-allow-clear="true" required>
               @foreach($addresses as $address)
-              <option value="{{$address->id}}">{{$address->street}}, {{$address->city}}</option>
+              <option value="{{$address->id}}">{{$address->unit_number ? $address->unit_number."/" : ""}}{{$address->street}}, {{$address->city}}</option>
               @endforeach
             </select>
           </div>

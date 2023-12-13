@@ -145,7 +145,7 @@
           <label class="form-label" for="complex_address">Addresses</label>
           <select id="complex_address" class="select2 form-select" name="complex_address[]" data-allow-clear="true" multiple>
             @foreach($address_list as $address)
-            <option value="{{$address->id}}" {{in_array($address->id, $address_ids) ? 'selected' : ''}}>{{$address->street}}, {{$address->city}}</option>
+            <option value="{{$address->id}}" {{in_array($address->id, $address_ids) ? 'selected' : ''}}>{{$address->unit_number ? $address->unit_number."/" : ""}}{{$address->street}}, {{$address->city}}</option>
             @endforeach
           </select>
         </div>

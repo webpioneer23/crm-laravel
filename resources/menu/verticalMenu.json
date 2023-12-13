@@ -7,6 +7,23 @@
       "url": "/"
     },
     {
+      "name": "Listings",
+      "icon": "menu-icon tf-icons ti ti-home-dollar",
+      "slug": "listing",
+      "submenu": [
+        {
+          "url": "listing",
+          "name": "List",
+          "slug": "listing.index"
+        },
+        {
+          "url": "listing/create",
+          "name": "Create",
+          "slug": "listing.create"
+        }
+      ]
+    },
+    {
       "name": "Complex",
       "icon": "menu-icon tf-icons ti ti-building-skyscraper",
       "slug": "complex",
