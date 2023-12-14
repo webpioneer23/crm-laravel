@@ -7,6 +7,7 @@ use App\Models\AddressContact;
 use App\Models\Contact;
 use App\Models\Tag;
 use App\Models\TagContact;
+use App\Models\TagObject;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
@@ -116,43 +117,64 @@ class ContactController extends Controller
      */
     public function update(Request $request, Contact $contact)
     {
-        $request->validate([
-            'first_name' => 'required|string',
-        ]);
 
-        $updated = [
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'full_name' => $request->full_name,
-            'mobile' => $request->mobile,
-            'email' => $request->email,
-            'notes' => $request->notes,
-            'rent_type' => $request->rent_type,
-        ];
-        if ($request->file('photo')) {
-            $image = $request->file('photo');
-            $path = $image->store('images', 'images'); // 'images' is the disk name
-            $updated['photo'] = $path;
-        }
-        $contact->update($updated);
+        if (isset($request->edit_type) && $request->edit_type == 'buyer_preferences') {
+            $updated = $request->except('_token', 'edit_type');
+            $updated['listing_types'] = json_encode($request->listing_types);
+            $contact->update($updated);
 
-        AddressContact::where('contact_id', $contact->id)->delete();
-        if ($request->contact_address) {
-            foreach ($request->contact_address as $key => $address_id) {
-                AddressContact::create([
-                    'address_id' => $address_id,
-                    'contact_id' => $contact->id,
-                ]);
+            TagObject::where([
+                'target_id' => $contact->id,
+                'type' => 'contact_buyer'
+            ])->delete();
+            if ($request->property_tags) {
+                foreach ($request->property_tags as $value) {
+                    TagObject::create([
+                        'target_id' => $contact->id,
+                        'tag_id' => $value,
+                        'type' => 'contact_buyer',
+                    ]);
+                }
             }
-        }
+        } else {
+            $request->validate([
+                'first_name' => 'required|string',
+            ]);
 
-        TagContact::where('contact_id', $contact->id)->delete();
-        if ($request->tags) {
-            foreach ($request->tags as $tag_id) {
-                TagContact::create([
-                    'tag_id' => $tag_id,
-                    'contact_id' => $contact->id,
-                ]);
+            $updated = [
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'full_name' => $request->full_name,
+                'mobile' => $request->mobile,
+                'email' => $request->email,
+                'notes' => $request->notes,
+                'rent_type' => $request->rent_type,
+            ];
+            if ($request->file('photo')) {
+                $image = $request->file('photo');
+                $path = $image->store('images', 'images'); // 'images' is the disk name
+                $updated['photo'] = $path;
+            }
+            $contact->update($updated);
+
+            AddressContact::where('contact_id', $contact->id)->delete();
+            if ($request->contact_address) {
+                foreach ($request->contact_address as $key => $address_id) {
+                    AddressContact::create([
+                        'address_id' => $address_id,
+                        'contact_id' => $contact->id,
+                    ]);
+                }
+            }
+
+            TagContact::where('contact_id', $contact->id)->delete();
+            if ($request->tags) {
+                foreach ($request->tags as $tag_id) {
+                    TagContact::create([
+                        'tag_id' => $tag_id,
+                        'contact_id' => $contact->id,
+                    ]);
+                }
             }
         }
 
@@ -166,5 +188,12 @@ class ContactController extends Controller
     {
         $contact->delete();
         return redirect()->route('contact.index');
+    }
+
+    public function buyer_preferences($contact_id)
+    {
+        $tags = Tag::all();
+        $contact = Contact::findOrFail($contact_id);
+        return view('contact.buyer_preferences', compact('contact', 'tags'));
     }
 }

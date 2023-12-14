@@ -18,6 +18,19 @@ class Contact extends Model
         'photo',
         'notes',
         'rent_type',
+
+        'listing_types',
+        'land_size_min',
+        'land_size_max',
+        'land_size_unit',
+        'floor_size_min',
+        'floor_size_max',
+        'floor_size_unit',
+        'car_spaces_min',
+        'car_spaces_max',
+        'suburbs',
+        'comments',
+
     ];
 
     public function getFullAddressAttribute()
@@ -32,5 +45,15 @@ class Contact extends Model
         $tag_contacts = TagContact::where('contact_id', $this->id)->pluck('tag_id');
         $tag_list = Tag::whereIn('id', $tag_contacts)->get();
         return $tag_list;
+    }
+
+    public function getPropertyTagsAttribute()
+    {
+        $tag_ids = TagObject::where(['target_id' => $this->id, 'type' => 'contact_buyer'])->pluck('tag_id');
+        $tags = [];
+        foreach ($tag_ids as $tag_id) {
+            array_push($tags, $tag_id);
+        }
+        return $tags;
     }
 }

@@ -12,7 +12,18 @@
 
 @section('page-script')
 <script src="{{asset('assets/js/form-layouts.js')}}"></script>
+<script>
+  $("#price_type").change(function() {
+    const prictType = $(this).val();
+    if (["Tender", "Deadline Treaty"].includes(prictType)) {
+      $("#tender_deadline_date_wrap").removeClass('d-none')
+    } else {
+      $("#tender_deadline_date_wrap").addClass('d-none')
+    }
+  })
+</script>
 @endsection
+
 
 
 @section('content')
@@ -140,7 +151,7 @@
                 </select>
               </div>
 
-              <div class="col-sm-6">
+              <div class="col-sm-6 d-none" id="tender_deadline_date_wrap">
                 <label class="form-label" for="tender_deadline_date">Tender/Deadline Date</label>
                 <input type="date" class="form-control" name="tender_deadline_date" id="tender_deadline_date" placeholder="YYYY-MM-DD" />
               </div>

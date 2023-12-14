@@ -76,7 +76,7 @@
     },
     {
       "name": "Contact",
-      "icon": "menu-icon tf-icons ti ti-files",
+      "icon": "menu-icon tf-icons ti ti-users",
       "slug": "contact",
       "submenu": [
         {
