@@ -7,6 +7,23 @@
       "url": "/"
     },
     {
+      "name": "Contract",
+      "icon": "menu-icon tf-icons ti ti-file-dollar",
+      "slug": "contract",
+      "submenu": [
+        {
+          "url": "contract",
+          "name": "List",
+          "slug": "contract.index"
+        },
+        {
+          "url": "contract/create",
+          "name": "Create",
+          "slug": "contract.create"
+        }
+      ]
+    },
+    {
       "name": "Listings",
       "icon": "menu-icon tf-icons ti ti-home-dollar",
       "slug": "listing",

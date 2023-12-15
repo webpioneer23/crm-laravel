@@ -154,8 +154,6 @@ class ListingController extends Controller
 
             $documents = $request->file('documents');
             if ($documents) {
-
-
                 foreach ($documents as $file) {
                     $attached_path = $file->store('files', 'images');
                     $file_name = $file->getClientOriginalName();
