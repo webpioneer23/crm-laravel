@@ -165,6 +165,7 @@ use App\Http\Controllers\ComplexController;
 use App\Http\Controllers\maps\Leaflet;
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\TagController;
 
 // Main Page Route
@@ -387,4 +388,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('/complex-wishlist/{wishlist_id}', [ComplexController::class, 'wishlist_delete'])->name('complex.wishlist.destroy');
 
     Route::resource('/listing', ListingController::class);
+
+    Route::resource('/contract', ContractController::class);
+    Route::get('/contract/{id}/files', [ContractController::class, 'files'])->name('contract.files');
 });
