@@ -62,12 +62,15 @@
     <div class="row g-3 mb-3">
         <div class="col-sm-6">
             <label class="form-label" for="headline">Headline</label>
-            <textarea class="form-control" name="headline" id="headline" rows="3">{{$listing->headline}}</textarea>
+            <input class="form-control" type="text" id="headline" name="headline" value="{{$listing->headline}}">
         </div>
 
         <div class="col-sm-6">
             <label class="form-label" for="description">Description</label>
-            <textarea class="form-control" name="description" id="description" rows="3">{{$listing->description}}</textarea>
+            <textarea class="form-control" name="description" id="description" rows="3" maxlength="2049">{{$listing->description}}</textarea>
+            <p id="descriptionInfo"></p>
+            <div id="descriptionWarning">
+            </div>
         </div>
     </div>
 
@@ -101,3 +104,24 @@
         <button class="btn btn-primary btn-next"> <span class="align-middle d-sm-inline-block d-none me-sm-1">Next</span> <i class="ti ti-arrow-right"></i></button>
     </div>
 </form>
+<script>
+    const textarea = document.getElementById('description');
+    const lengthInfo = document.getElementById('descriptionInfo');
+    const warningMessage = document.getElementById('descriptionWarning');
+
+    textarea.addEventListener('input', function() {
+        const textLength = textarea.value.length;
+
+        lengthInfo.textContent = `Text Length: ${textLength}`;
+
+        if (textLength > 2048) {
+            const warningElement = document.createElement('p');
+            warningElement.textContent = 'Warning: Trade Me restricts text to 2048 characters. Reduce your text to avoid it being cut off.';
+            warningElement.className = 'alert alert-danger';
+            warningMessage.innerHTML = '';
+            warningMessage.appendChild(warningElement);
+        } else {
+            warningMessage.textContent = ''; // Clear the warning if length is within limit
+        }
+    });
+</script>

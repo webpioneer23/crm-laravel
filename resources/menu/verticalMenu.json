@@ -1,59 +1,42 @@
 {
   "menu": [
     {
-      "name": "Dashboards",
+      "name": "Dashboard",
       "icon": "menu-icon tf-icons ti ti-smart-home",
       "slug": "home",
       "url": "/"
     },
     {
-      "name": "Contract",
-      "icon": "menu-icon tf-icons ti ti-file-dollar",
-      "slug": "contract",
+      "name": "Contacts",
+      "icon": "menu-icon tf-icons ti ti-users",
+      "slug": "contact",
       "submenu": [
         {
-          "url": "contract",
+          "url": "contact",
           "name": "List",
-          "slug": "contract.index"
+          "slug": "contact.index"
         },
         {
-          "url": "contract/create",
+          "url": "contact/create",
           "name": "Create",
-          "slug": "contract.create"
+          "slug": "contact.create"
         }
       ]
     },
     {
-      "name": "Listings",
-      "icon": "menu-icon tf-icons ti ti-home-dollar",
-      "slug": "listing",
+      "name": "Addresses",
+      "icon": "menu-icon tf-icons ti ti-map-2",
+      "slug": "address",
       "submenu": [
         {
-          "url": "listing",
+          "url": "address",
           "name": "List",
-          "slug": "listing.index"
+          "slug": "address.index"
         },
         {
-          "url": "listing/create",
+          "url": "address/create",
           "name": "Create",
-          "slug": "listing.create"
-        }
-      ]
-    },
-    {
-      "name": "Complex",
-      "icon": "menu-icon tf-icons ti ti-building-skyscraper",
-      "slug": "complex",
-      "submenu": [
-        {
-          "url": "complex",
-          "name": "List",
-          "slug": "complex.index"
-        },
-        {
-          "url": "complex/create",
-          "name": "Create",
-          "slug": "complex.create"
+          "slug": "address.create"
         }
       ]
     },
@@ -75,41 +58,58 @@
       ]
     },
     {
-      "name": "Address",
-      "icon": "menu-icon tf-icons ti ti-map-2",
-      "slug": "address",
+      "name": "Listings",
+      "icon": "menu-icon tf-icons ti ti-home-dollar",
+      "slug": "listing",
       "submenu": [
         {
-          "url": "address",
+          "url": "listing",
           "name": "List",
-          "slug": "address.index"
+          "slug": "listing.index"
         },
         {
-          "url": "address/create",
+          "url": "listing/create",
           "name": "Create",
-          "slug": "address.create"
+          "slug": "listing.create"
         }
       ]
     },
     {
-      "name": "Contact",
-      "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "contact",
+      "name": "Contracts",
+      "icon": "menu-icon tf-icons ti ti-file-dollar",
+      "slug": "contract",
       "submenu": [
         {
-          "url": "contact",
+          "url": "contract",
           "name": "List",
-          "slug": "contact.index"
+          "slug": "contract.index"
         },
         {
-          "url": "contact/create",
+          "url": "contract/create",
           "name": "Create",
-          "slug": "contact.create"
+          "slug": "contract.create"
         }
       ]
     },
     {
-      "name": "Tag",
+      "name": "Complexes",
+      "icon": "menu-icon tf-icons ti ti-building-skyscraper",
+      "slug": "complex",
+      "submenu": [
+        {
+          "url": "complex",
+          "name": "List",
+          "slug": "complex.index"
+        },
+        {
+          "url": "complex/create",
+          "name": "Create",
+          "slug": "complex.create"
+        }
+      ]
+    },
+    {
+      "name": "Tags",
       "icon": "menu-icon tf-icons ti ti-files",
       "slug": "tag",
       "submenu": [

@@ -119,13 +119,20 @@ $(function () {
   if (maxlengthInput.length) {
     maxlengthInput.each(function () {
       $(this).maxlength({
-        warningClass: 'label label-success bg-success text-white',
+        // warningClass: 'label label-success bg-success text-white',
+        // limitReachedClass: 'label label-danger',
+        // separator: ' out of ',
+        // preText: 'You typed ',
+        // postText: ' chars available.',
+        // validate: true,
+        // threshold: +this.getAttribute('maxlength')
+        warningClass: 'label label-warning bg-success text-white',
         limitReachedClass: 'label label-danger',
-        separator: ' out of ',
-        preText: 'You typed ',
-        postText: ' chars available.',
+        // separator: ' out of ',
+        preText: 'Warning: Trade Me restricts text to ',
+        postText: ' characters. Reduce your text to avoid it being cut off.',
         validate: true,
-        threshold: +this.getAttribute('maxlength')
+        threshold: +this.getAttribute('maxlength') + 3
       });
     });
   }
