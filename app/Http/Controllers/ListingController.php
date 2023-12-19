@@ -6,6 +6,7 @@ use App\Models\Address;
 use App\Models\AFile;
 use App\Models\Contact;
 use App\Models\Listing;
+use App\Models\ListingInspection;
 use App\Models\ListingTag;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -170,8 +171,14 @@ class ListingController extends Controller
         }
 
         if ($data['step'] == 5) {
-            $data = $request->except('step');
-            $listing->update($data);
+            $data = $request['group-a'];
+            ListingInspection::where([
+                'listing_id' => $listing->id
+            ])->delete();
+            foreach ($data as $item) {
+                $item['listing_id'] = $listing->id;
+                ListingInspection::create($item);
+            }
             return redirect()->route('listing.index');
         }
 

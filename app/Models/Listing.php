@@ -119,4 +119,20 @@ class Listing extends Model
         $vendor = Contact::find($this->contact_id);
         return $vendor;
     }
+
+    public function getInspectionsAttribute()
+    {
+        $inspections = [];
+        $obs = ListingInspection::where('listing_id', $this->id)->get();
+        foreach ($obs as $inspection) {
+            array_push($inspections, [
+                "inspection_date" => $inspection->inspection_date,
+                "inspection_type" => $inspection->inspection_type,
+                "inspection_booking_setting" => $inspection->inspection_booking_setting,
+                "start_time" => $inspection->start_time,
+                "end_time" => $inspection->end_time,
+            ]);
+        }
+        return $obs;
+    }
 }

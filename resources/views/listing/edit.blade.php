@@ -12,12 +12,53 @@
 <script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js')}}"></script>
 
+<script src="{{asset('assets/vendor/libs/jquery-repeater/jquery-repeater.js')}}"></script>
+
 @endsection
 
 @section('page-script')
 <script src="{{asset('assets/js/form-layouts.js')}}"></script>
 <script src="{{asset('assets/js/forms-extras.js')}}"></script>
 
+<script>
+  formRepeater = $('.form-repeater-inspection');
+  var row = 2;
+  var col = 1;
+  formRepeater.repeater({
+    show: function() {
+      var fromControl = $(this).find('.form-control, .form-select, .form-check-input');
+      var formLabel = $(this).find('.form-label, .form-check-label');
+
+      fromControl.each(function(i) {
+        var id = 'form-repeater-' + row + '-' + col;
+        $(fromControl[i]).attr('id', id);
+        $(formLabel[i]).attr('for', id);
+        col++;
+      });
+
+      row++;
+
+      $(this).slideDown();
+    },
+    hide: function(e) {
+      confirm('Are you sure you want to delete this element?') && $(this).slideUp(e);
+    },
+  });
+
+  const list = <?php echo $listing->inspections; ?>;
+
+  const initList = list.map(item => ({
+    "inspection_type": item.inspection_type,
+    "inspection_booking_setting": item.inspection_booking_setting,
+    "inspection_date": item.inspection_date,
+    "start_time": item.start_time,
+    "end_time": item.end_time,
+  }));
+
+  if (initList.length > 0) {
+    formRepeater.setList(initList)
+  }
+</script>
 @endsection
 
 

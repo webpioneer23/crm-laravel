@@ -34,6 +34,10 @@
           <li class="nav-item">
             <a href="{{route('contact.buyer_preferences', $contact->id)}}" class="nav-link active"> Preferences</a>
           </li>
+
+          <li class="nav-item">
+            <a href="{{route('contact.relationship', $contact->id)}}" class="nav-link"> Relationship</a>
+          </li>
         </ul>
       </div>
       <div class="card-body">

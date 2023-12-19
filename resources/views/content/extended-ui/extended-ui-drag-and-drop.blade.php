@@ -72,12 +72,12 @@
       <h5 class="card-header">Images</h5>
       <div class="card-body">
         <div class="d-flex flex-wrap mb-3 gap-2" id="image-list-1">
-          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/1.png')}}" alt="avatar" height="50" width="50" />
-          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/2.png')}}" alt="avatar" height="50" width="50" />
-          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/3.png')}}" alt="avatar" height="50" width="50" />
-          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/4.png')}}" alt="avatar" height="50" width="50" />
-          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/5.png')}}" alt="avatar" height="50" width="50" />
-          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/6.png')}}" alt="avatar" height="50" width="50" />
+          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/1.png')}}" alt="avatar1" height="50" width="50" data-id="aa1" />
+          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/2.png')}}" alt="avatar2" height="50" width="50" data-id="aa2" />
+          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/3.png')}}" alt="avatar3" height="50" width="50" data-id="aa3" />
+          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/4.png')}}" alt="avatar4" height="50" width="50" data-id="aa4" />
+          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/5.png')}}" alt="avatar5" height="50" width="50" data-id="aa5" />
+          <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/6.png')}}" alt="avatar6" height="50" width="50" data-id="aa6" />
         </div>
         <div class="d-flex flex-wrap gap-2" id="image-list-2">
           <img class="rounded-circle drag-item cursor-move" src="{{asset('assets/img/avatars/7.png')}}" alt="avatar" height="50" width="50" />

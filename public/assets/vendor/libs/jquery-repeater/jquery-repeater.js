@@ -525,6 +525,36 @@ var createInputText = function (fig) {
     return self;
 };
 
+var createInputDate = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'date';
+    };
+
+    self.$().on('change', function (e) {
+        my.publishChange(e, this);
+    });
+
+    return self;
+};
+
+var createInputTime = function (fig) {
+    var my = {},
+        self = createInput(fig, my);
+
+    self.getType = function () {
+        return 'time';
+    };
+
+    self.$().on('change', function (e) {
+        my.publishChange(e, this);
+    });
+
+    return self;
+};
+
 var createInputTextarea = function (fig) {
     var my = {},
         self = createInput(fig, my);
@@ -558,6 +588,8 @@ var buildFormInputs = function (fig) {
     var constructor = fig.constructorOverride || {
         button: createInputButton,
         text: createInputText,
+        date: createInputDate,
+        time: createInputTime,
         url: createInputURL,
         email: createInputEmail,
         password: createInputPassword,
@@ -659,6 +691,12 @@ var buildFormInputs = function (fig) {
         else if($self.is('input[type="checkbox"]')) {
             addInputsGroup('checkbox', $self);
         }
+        else if($self.is('input[type="date"]')) {
+            addInputsGroup('date', $self);
+        }
+        else if($self.is('input[type="time"]')) {
+            addInputsGroup('time', $self);
+        }
         else {
             //in all other cases default to a "text" input interface.
             addInputsBasic('text', $self);
@@ -667,6 +705,8 @@ var buildFormInputs = function (fig) {
     else {
         addInputsBasic('button', 'input[type="button"], button, input[type="submit"]');
         addInputsBasic('text', 'input[type="text"]');
+        addInputsBasic('date', 'input[type="date"]');
+        addInputsBasic('time', 'input[type="time"]');
         addInputsBasic('password', 'input[type="password"]');
         addInputsBasic('email', 'input[type="email"]');
         addInputsBasic('url', 'input[type="url"]');

@@ -23,9 +23,40 @@
   // Images
   // --------------------------------------------------------------------
   if (imageList1) {
-    Sortable.create(imageList1, {
+    var sort1 = Sortable.create(imageList1, {
       animation: 150,
-      group: 'imgList'
+      group: 'imgList',
+      store: {
+        get: function (sortable) {
+          var order = localStorage.getItem(sortable.options.group);
+          return order ? order.split('|') : [];
+        },
+        set: function (sortable) {
+          var order = sortable.toArray();
+          console.log(order, 'foooooooooooooooooooooooo');
+          $('.visuaplayoutCol01').attr('value', order);
+        }
+      },
+      onEnd: function (/**Event*/ evt) {
+        console.log(evt.item.dataset.id, 'datasetID'); // element's new index within parent
+        // var order = sortable.toArray();
+        console.log({ evt });
+        $('.visuaplayoutCol02').attr('value', $('.visuaplayoutCol01').attr('value') + ',' + evt.item.dataset.id);
+      },
+      onAdd: function (/**Event*/ evt) {
+        var itemEl = evt.item; // dragged HTMLElement
+        console.log(evt.from, 'From'); // previous list
+        console.log(evt.to, 'To'); // next list
+        //$('.visuaplayoutCol02').attr('value', $('.visuaplayoutCol01').attr('value') + ',' + evt.item.dataset.id);
+      },
+      onUpdate: function (evt) {
+        var itemEl = evt.item; // dragged HTMLElement
+        console.log(itemEl, 'draggedelement');
+      },
+      onSort: function (evt) {
+        var itemEl = evt.item; // dragged HTMLElement
+        console.log(itemEl, 'onSort');
+      }
     });
   }
   if (imageList2) {
