@@ -4,14 +4,20 @@
 
 @section('vendor-style')
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-maxlength/bootstrap-maxlength.css')}}" />
+
 @endsection
 
 @section('vendor-script')
 <script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js')}}"></script>
+
 @endsection
 
 @section('page-script')
 <script src="{{asset('assets/js/form-layouts.js')}}"></script>
+<script src="{{asset('assets/js/forms-extras.js')}}"></script>
+
 @endsection
 
 
