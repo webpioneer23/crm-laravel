@@ -34,14 +34,31 @@
           <li class="nav-item">
             <a href="{{route('contact.buyer_preferences', $contact->id)}}" class="nav-link"> Preferences</a>
           </li>
+          <li class="nav-item">
+            <a href="{{route('contact.relationship', $contact->id)}}" class="nav-link"> Relationship</a>
+          </li>
         </ul>
       </div>
       <div class="card-body">
         <form method="post" action="{{route('contact.update', $contact->id)}}" enctype="multipart/form-data">
           @csrf
           @method('PUT')
+
           <div class="row mb-3">
-            <label class="form-check-label col-sm-2" for="contact_address">Residing Address (multiple)</label>
+            <label class="form-check-label col-sm-2" for="contact_address">Residing Address</label>
+            <div class="col-sm-10">
+              <select id="residing_address" class="select2 form-select form-select-lg" name="residing_address" data-allow-clear="true">
+                @foreach($addresses as $address)
+                <option value="{{$address->id}}" {{$address->id == $contact->residing_address ? 'selected' : ''}}>{{$address->unit_number ? $address->unit_number."/" : ""}}{{$address->street}}, {{$address->city}}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+
+
+
+          <div class="row mb-3">
+            <label class="form-check-label col-sm-2" for="contact_address">Properties Owned (multiple)</label>
             <div class="col-sm-8">
               <?php
               $address_ids = [];
@@ -59,6 +76,7 @@
               <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAddressModal">Add Property</button>
             </div>
           </div>
+
 
           <div class="row mb-3">
             <label class="col-sm-2 col-form-label" for="basic-default-name">First Name *</label>
@@ -131,9 +149,16 @@
           </div>
 
           <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="social_links">Social Links</label>
+            <div class="col-sm-10">
+              <textarea name="social_links" class="form-control" rows="5" placeholder="">{{$contact->social_links}}</textarea>
+            </div>
+          </div>
+
+          <div class="row mb-3">
             <label class="col-sm-2 col-form-label" for="basic-default-message">Notes</label>
             <div class="col-sm-10">
-              <textarea name="notes" value="{{$contact->notes}}" class="form-control" placeholder=""></textarea>
+              <textarea name="notes" class="form-control" placeholder="">{{$contact->notes}}</textarea>
             </div>
           </div>
 

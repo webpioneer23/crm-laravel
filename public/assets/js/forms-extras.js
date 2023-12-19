@@ -144,9 +144,10 @@ $(function () {
   if (formRepeater.length) {
     var row = 2;
     var col = 1;
-    formRepeater.on('submit', function (e) {
-      e.preventDefault();
-    });
+    // formRepeater.on('submit', function (e) {
+    //   console.log('submit---');
+    //   e.preventDefault();
+    // });
     formRepeater.repeater({
       show: function () {
         var fromControl = $(this).find('.form-control, .form-select');

@@ -27,8 +27,21 @@
     <div class="card-body">
       <form method="post" action="{{route('contact.store')}}" enctype="multipart/form-data">
         @csrf
+
         <div class="row mb-3">
-          <label class="form-check-label col-sm-2" for="contact_address">Residing Address (multiple)</label>
+          <label class="form-check-label col-sm-2" for="residing_address">Residing Address</label>
+          <div class="col-sm-10">
+            <select id="residing_address" class="select2 form-select form-select-lg" name="residing_address" data-allow-clear="true">
+              @foreach($addresses as $address)
+              <option value="{{$address->id}}">{{$address->unit_number ? $address->unit_number."/" : ""}}{{$address->street}}, {{$address->city}}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+
+
+        <div class="row mb-3">
+          <label class="form-check-label col-sm-2" for="contact_address">Properties Owned (multiple)</label>
           <div class="col-sm-8">
             <select id="contact_address" class="select2 form-select form-select-lg" name="contact_address[]" data-allow-clear="true" multiple>
               @foreach($addresses as $address)
@@ -100,6 +113,13 @@
               <input name="rent_type" class="form-check-input" id="rental-tenant" type="radio" value="Tenant" />
               <label class="form-check-label" for="rental-tenant">Tenant</label>
             </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label" for="social_links">Social Links</label>
+          <div class="col-sm-10">
+            <textarea name="social_links" class="form-control" rows="5" placeholder=""></textarea>
           </div>
         </div>
 

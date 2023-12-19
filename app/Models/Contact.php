@@ -31,6 +31,11 @@ class Contact extends Model
         'suburbs',
         'comments',
 
+        'residing_address',
+        'social_links',
+        'note',
+
+
     ];
 
     public function getFullAddressAttribute()

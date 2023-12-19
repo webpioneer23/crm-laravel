@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Address;
 use App\Models\AddressContact;
 use App\Models\Contact;
+use App\Models\ContactRelationship;
 use App\Models\Tag;
 use App\Models\TagContact;
 use App\Models\TagObject;
@@ -69,6 +70,8 @@ class ContactController extends Controller
             'photo' => $photo_path,
             'notes' => $request->notes,
             'rent_type' => $request->rent_type,
+            'residing_address' => $request->residing_address,
+            'social_links' => $request->social_links,
         ]);
 
         if ($contact->id) {
@@ -136,6 +139,12 @@ class ContactController extends Controller
                     ]);
                 }
             }
+        } elseif (isset($request->edit_type) && $request->edit_type == 'relationship') {
+            $data = $request->except('_token', 'edit_type');
+            $data['source_id'] = auth()->user()->id;
+
+            ContactRelationship::create($data);
+            return back();
         } else {
             $request->validate([
                 'first_name' => 'required|string',
@@ -149,7 +158,10 @@ class ContactController extends Controller
                 'email' => $request->email,
                 'notes' => $request->notes,
                 'rent_type' => $request->rent_type,
+                'residing_address' => $request->residing_address,
+                'social_links' => $request->social_links,
             ];
+
             if ($request->file('photo')) {
                 $image = $request->file('photo');
                 $path = $image->store('images', 'images'); // 'images' is the disk name
@@ -195,5 +207,20 @@ class ContactController extends Controller
         $tags = Tag::all();
         $contact = Contact::findOrFail($contact_id);
         return view('contact.buyer_preferences', compact('contact', 'tags'));
+    }
+
+    public function relationship($contact_id)
+    {
+        $contact = Contact::findOrFail($contact_id);
+        $contacts = Contact::where('id', '!=', $contact_id)->get();
+
+        $list = ContactRelationship::where('source_id', auth()->user()->id)->get();
+        return view('contact.contact-related', compact('contacts', 'contact', 'list'));
+    }
+
+    public function relationship_destroy($contact_id)
+    {
+        ContactRelationship::findorFail($contact_id)->delete();
+        return back();
     }
 }

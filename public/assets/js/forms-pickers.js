@@ -7,7 +7,7 @@
 (function () {
   // Flat Picker
   // --------------------------------------------------------------------
-  const flatpickrDate = document.querySelector('#flatpickr-date'),
+  const flatpickrDateList = document.querySelectorAll('.flatpickr-date'),
     flatpickrTime = document.querySelector('#flatpickr-time'),
     flatpickrDateTime = document.querySelector('#flatpickr-datetime'),
     flatpickrMulti = document.querySelector('#flatpickr-multi'),
@@ -16,10 +16,13 @@
     flatpickrFriendly = document.querySelector('#flatpickr-human-friendly'),
     flatpickrDisabledRange = document.querySelector('#flatpickr-disabled-range');
 
+  console.log(typeof flatpickrDateList);
   // Date
-  if (flatpickrDate) {
-    flatpickrDate.flatpickr({
-      monthSelectorType: 'static'
+  if (flatpickrDateList) {
+    flatpickrDateList.forEach(flatpickrDate => {
+      flatpickrDate.flatpickr({
+        monthSelectorType: 'static'
+      });
     });
   }
 
@@ -50,11 +53,11 @@
   }
 
   // Range
-  if (typeof flatpickrRange != undefined) {
-    flatpickrRange.flatpickr({
-      mode: 'range'
-    });
-  }
+  // if (typeof flatpickrRange != undefined) {
+  //   flatpickrRange.flatpickr({
+  //     mode: 'range'
+  //   });
+  // }
 
   // Inline
   if (flatpickrInline) {
