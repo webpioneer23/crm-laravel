@@ -13,7 +13,7 @@
 <script src="{{asset('assets/vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js')}}"></script>
 
 <script src="{{asset('assets/vendor/libs/jquery-repeater/jquery-repeater.js')}}"></script>
-
+<script src="{{asset('assets/vendor/libs/sortablejs/sortable.js')}}"></script>
 @endsection
 
 @section('page-script')
@@ -58,6 +58,24 @@
   if (initList.length > 0) {
     formRepeater.setList(initList)
   }
+
+
+  // image sort
+  const listingPhotos = document.getElementById('listing-photos');
+  var sort1 = Sortable.create(listingPhotos, {
+    animation: 150,
+    group: 'imgList',
+    store: {
+      get: function(sortable) {
+        var order = localStorage.getItem(sortable.options.group);
+        return order ? order.split('|') : [];
+      },
+      set: function(sortable) {
+        var order = sortable.toArray();
+        $('.img-order').attr('value', order);
+      }
+    }
+  });
 </script>
 @endsection
 

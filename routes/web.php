@@ -376,7 +376,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/tag', TagController::class);
     Route::post('/contact-address', [AddressController::class, 'contact_address'])->name('contact.address');
     Route::resource('/contact', ContactController::class);
-    Route::get('/contact-buyer_preferences/{id}', [ContactController::class, 'buyer_preferences'])->name('contact.buyer_preferences');
+    Route::get('/contact-buyer-preferences/{id}', [ContactController::class, 'buyer_preferences'])->name('contact.buyer_preferences');
     Route::get('/contact-relationship/{id}', [ContactController::class, 'relationship'])->name('contact.relationship');
     Route::delete('/contact-destroy/{id}', [ContactController::class, 'relationship_destroy'])->name('contact.relationship.destroy');
 

@@ -4,7 +4,7 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Contract /</span> List
+  <span class="text-muted fw-light">Contract /</span> Contract
 </h4>
 
 <!-- Basic Bootstrap Table -->
@@ -18,6 +18,8 @@
       <table class="table">
         <thead>
           <tr>
+            <th>No</th>
+            <th>Listing</th>
             <th>Purchaser Name</th>
             <th>Vendor name</th>
             <th>Purchaser</th>
@@ -25,8 +27,16 @@
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
-          @foreach($list as $item)
+          @foreach($list as $key => $item)
           <tr>
+            <td>
+              {{$key + 1}}
+            </td>
+            <td>
+              @if($item->listing)
+              {{$item->listing->address?->unit_number ? $item->listing->address->unit_number."/" : ""}}{{$item->listing->address->street}}, {{$item->listing->address->city}}
+              @endif
+            </td>
             <td>
               {{$item->purchaser_name}}
             </td>

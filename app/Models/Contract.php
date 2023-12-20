@@ -18,6 +18,7 @@ class Contract extends Model
         "deposit_received_date",
         "commission",
         "comment",
+        "listing_id"
     ];
 
     public function getContactsAttribute()
@@ -41,5 +42,11 @@ class Contract extends Model
     {
         $files = AFile::where(['target_id' => $this->id, 'type' => 'contract_document'])->get();
         return $files;
+    }
+
+    public function getListingAttribute()
+    {
+        $listing = Listing::find($this->listing_id);
+        return $listing;
     }
 }

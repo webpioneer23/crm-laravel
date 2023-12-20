@@ -14,7 +14,8 @@ class AppraisalController extends Controller
      */
     public function index()
     {
-        return view('appraisal/list');
+        $list = Appraisal::all();
+        return view('appraisal/list', compact('list'));
     }
 
     /**
@@ -32,7 +33,9 @@ class AppraisalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->except('_token');
+        Appraisal::create($data);
+        return redirect()->route('appraisal.index');
     }
 
     /**
@@ -48,7 +51,9 @@ class AppraisalController extends Controller
      */
     public function edit(Appraisal $appraisal)
     {
-        //
+        $contacts = Contact::all();
+        $addresses = Address::all();
+        return view('appraisal/edit', compact('contacts', 'addresses', 'appraisal'));
     }
 
     /**
@@ -56,7 +61,9 @@ class AppraisalController extends Controller
      */
     public function update(Request $request, Appraisal $appraisal)
     {
-        //
+        $data = $request->except('_token');
+        $appraisal->update($data);
+        return redirect()->route('appraisal.index');
     }
 
     /**
@@ -64,6 +71,7 @@ class AppraisalController extends Controller
      */
     public function destroy(Appraisal $appraisal)
     {
-        //
+        $appraisal->delete();
+        return back();
     }
 }

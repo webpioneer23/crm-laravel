@@ -68,6 +68,17 @@
         ?>
 
         <div class="row mb-3">
+          <label class="form-check-label col-sm-2" for="purchasers">Listing</label>
+          <div class="col-sm-10">
+            <select id="listing_id" class="select2 form-select form-select-lg" name="listing_id" data-allow-clear="true">
+              @foreach($listings as $listing)
+              <option value="{{$listing->id}}" {{$listing->id == $contract->listing_id? 'selected' : ''}}> {{$listing->address?->unit_number ? $listing->address->unit_number."/" : ""}}{{$listing->address->street}}, {{$listing->address->city}} </option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="purchaser_name">Purchaser Name</label>
           <div class="col-sm-10">
             <input type="text" name="purchaser_name" id="purchaser_name" class="form-control" value="{{$contract->purchaser_name}}" placeholder="Purchaser Name" />

@@ -18,134 +18,146 @@
 @section('page-script')
 <script src="{{asset('assets/js/form-layouts.js')}}"></script>
 <script>
-  const tags = $("#temp_tags").val();
-
-  const tag_list = JSON.parse(tags);
-  $("#tags").val(tag_list);
-  console.log({
-    tag_list
-  })
-
-  function selectAddressType(type) {
-    console.log({
-      type
-    })
-    if (type === 'new') {
-      $(".exist-address").addClass('d-none');
-      $(".new-address").removeClass('d-none')
-    } else {
-      var newTextarea = $(".new-address textarea");
-      // Remove the 'required' attribute
-      newTextarea[0].removeAttribute('required');
-
-      $(".exist-address").removeClass('d-none')
-      $(".new-address").addClass('d-none');
+  function processStatus(status) {
+    $(".pending-status").addClass("d-none");
+    $(".lost-status").addClass("d-none");
+    if (status == "Pending") {
+      $(".pending-status").removeClass("d-none");
+    }
+    if (status == "Lost") {
+      $(".lost-status").removeClass("d-none");
     }
   }
+
+  const initStatus = "<?php echo $appraisal->status; ?>";
+  processStatus(initStatus);
+
+  $(document).on('change', '#status', function() {
+    const status = $(this).val();
+    processStatus(status);
+  })
 </script>
 @endsection
 
 @section('content')
-<h4 class="py-3 mb-4"><span class="text-muted fw-light">Contact/</span> Edit</h4>
-
+<h4 class="py-3 mb-4"><span class="text-muted fw-light">Appraisal/</span> Create</h4>
 
 <div class="row">
   <div class="card mb-4">
     <div class="card-body">
-      <form method="post" action="{{route('contact.update', $contact->id)}}" enctype="multipart/form-data">
+      <form method="post" action="{{route('appraisal.update', $appraisal->id)}}">
         @csrf
         @method('PUT')
+
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">First Name *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->first_name}}" name="first_name" class="form-control" placeholder="First Name" required />
+          <label class="form-check-label col-sm-2" for="address_id">Address</label>
+          <div class="col-sm-8">
+            <select id="address_id" class="select2 form-select form-select-lg" name="address_id" data-allow-clear="true">
+              @foreach($addresses as $address)
+              <option value="{{$address->id}}" {{$appraisal->address_id == $address->id ? 'selected' : ''}}>{{$address->unit_number ? $address->unit_number."/" : ""}}{{$address->unit_number ? $address->unit_number."/" : ""}}{{$address->street}}, {{$address->city}}</option>
+              @endforeach
+            </select>
           </div>
-        </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Last Name *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->last_name}}" name="last_name" class="form-control" placeholder="Last Name" required />
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Full Legal Name *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->full_name}}" name="full_name" class="form-control" placeholder="Full Legal Name" required />
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Mobile *</label>
-          <div class="col-sm-10">
-            <input type="text" value="{{$contact->mobile}}" name="mobile" class="form-control" placeholder="Mobile" required />
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-name">Email *</label>
-          <div class="col-sm-10">
-            <input type="email" value="{{$contact->email}}" name="email" class="form-control" placeholder="Email" required />
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newAddressModal">Add Property</button>
           </div>
         </div>
 
 
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-phone">Photo </label>
+          <label class="form-check-label col-sm-2" for="contact_id">Contact</label>
           <div class="col-sm-10">
-            <input class="form-control" type="file" name="photo">
-          </div>
-        </div>
-        <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-phone">Tags *</label>
-          <div class="col-sm-10">
-            <input type="hidden" id="temp_tags" value="{{$contact->tags}}">
-            <select name="tags[]" class="select2 form-select" id="tags" multiple>
-              @foreach($tags as $tag)
-              <option value="{{$tag->id}}">{{$tag->name}}</option>
+            <select id="contact_id" class="select2 form-select form-select-lg" name="contact_id" data-allow-clear="true">
+              @foreach($contacts as $contact)
+              <option value="{{$contact->id}}" {{$appraisal->contact_id == $contact->id ? 'selected' : ''}}>{{$contact->first_name." ".$contact->last_name}}</option>
               @endforeach
             </select>
           </div>
         </div>
+
         <div class="row mb-3">
-          <label class="col-sm-2 col-form-label" for="basic-default-message">Notes</label>
+          <label class="col-sm-2 col-form-label" for="price-range">Price Range</label>
           <div class="col-sm-10">
-            <textarea name="notes" value="{{$contact->notes}}" class="form-control" placeholder=""></textarea>
+            <div class="row">
+              <div class="col-md-6">
+                <input type="number" placeholder="Min" class="form-control" name="price_min" value="{{$appraisal->price_min}}">
+              </div>
+              <div class="col-md-6">
+                <input type="number" placeholder="Max" class="form-control" name="price_max" value="{{$appraisal->price_max}}">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label" for="appraisal_value">Appraisal Value</label>
+          <div class="col-sm-10">
+            <input type="number" name="appraisal_value" class="form-control" placeholder="Appraisal Value" id="appraisal_value" value="{{$appraisal->appraisal_value}}" />
           </div>
         </div>
 
         <div class="row mb-3">
-          <label class="form-check-label col-sm-2">Address *</label>
+          <label class="col-sm-2 col-form-label" for="basic-default-name">Due Date</label>
+          <div class="col-sm-10">
+            <input type="date" name="due_date" id="due_date" class="form-control" value="{{$appraisal->due_date}}" placeholder="Due Date" />
+          </div>
+        </div>
+        <?php
+        $status_list = ["Preparing", "Pending", "Won", "Lost"];
+        ?>
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label" for="status">Status</label>
+          <div class="col-sm-10">
+            <select name="status" class="select2 form-select" id="status">
+              @foreach($status_list as $status)
+              <option value="{{$status}}" {{$appraisal->status == $status ? 'selected' : ''}}>{{$status}}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+        <div class="row mb-3 pending-status d-none">
+          <label class="col-sm-2 col-form-label" for="delivered_date">Delivered Date</label>
+          <div class="col-sm-10">
+            <input type="datetime-local" name="delivered_date" id="delivered_date" value="{{$appraisal->delivered_date}}" class="form-control" placeholder="Delivered Date" />
+          </div>
+        </div>
+        <?php
+        $delivery_types = ["Electronic", "Physical"];
+        ?>
+        <div class="row mb-3 pending-status d-none">
+          <label class="form-check-label col-sm-2">Delivery Type</label>
           <div class="col-sm-10 mt-2">
+            @foreach($delivery_types as $key => $delivery_type)
             <div class="form-check form-check-inline">
-              <input name="address_type" class="form-check-input" id="new-address-type" type="radio" value="new" {{$contact->address_type == 'new' ? 'checked' : ''}} onclick="selectAddressType('new')" />
-              <label class="form-check-label" for="new-address-type">New Address</label>
+              <input name="delivery_type" class="form-check-input" id="{{$delivery_type}}" type="radio" value="{{$delivery_type}}" {{$appraisal->delivery_type == $delivery_type ? 'checked' : ''}} />
+              <label class="form-check-label" for="{{$delivery_type}}">{{$delivery_type}}</label>
             </div>
-            <div class="form-check form-check-inline">
-              <input name="address_type" class="form-check-input" id="exist-address-type" type="radio" value="old" {{$contact->address_type == 'old' ? 'checked' : ''}} onclick="selectAddressType('exist')" />
-              <label class="form-check-label" for="exist-address-type">Existing Address</label>
-            </div>
+            @endforeach
           </div>
         </div>
 
-        <div class="row mb-3 new-address {{$contact->address_type == 'new' ? '' : 'd-none'}}">
-          <label class="form-check-label col-sm-2"></label>
+        <div class="row mb-3 lost-status d-none">
+          <label class="col-sm-2 col-form-label" for="reason_lost">Reason Lost</label>
           <div class="col-sm-10">
-            <textarea id="new_address" name="address_new" class="form-control" placeholder="" required>{{$contact->address_type == 'new' ? $contact->address : ''}}
-            </textarea>
+            <textarea name="reason_lost" id="reason_lost" class="form-control" rows="5" placeholder="">{{$appraisal->reason_lost}}</textarea>
           </div>
         </div>
 
-        <div class="row mb-3 exist-address  {{$contact->address_type == 'old' ? '' : 'd-none'}}">
-          <label class="form-check-label col-sm-2"></label>
+        <?php
+        $interest_list = ["Cold", "Warm", "Hot"];
+        ?>
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label" for="interest">Interest</label>
           <div class="col-sm-10">
-            <select id="old_address" class="select2 form-select form-select-lg" name="address_old" data-allow-clear="true" required>
-              @foreach($addresses as $address)
-              <option value="{{$address->id}}">{{$address->unit_number ? $address->unit_number."/" : ""}}{{$address->street}}, {{$address->city}}</option>
+            <select name="interest" class="select2 form-select" id="interest">
+              @foreach($interest_list as $interest)
+              <option value="{{$interest}}" {{$appraisal->interest == $interest ? 'selected' : ''}}>{{$interest}}</option>
               @endforeach
             </select>
           </div>
         </div>
 
         <div class="row justify-content-end">
-          <div class="col-sm-10">
+          <div class="col-sm-4 text-end">
             <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </div>
@@ -153,5 +165,7 @@
     </div>
   </div>
 </div>
+
+@include('contact/new-address')
 
 @endsection
