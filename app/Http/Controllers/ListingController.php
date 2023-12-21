@@ -78,6 +78,7 @@ class ListingController extends Controller
     public function update(Request $request, Listing $listing)
     {
         $data = $request->except('_token');
+
         if ($data['step'] == 2) {
             if (isset($data['featured_property']) && $data['featured_property'] == 'on') {
                 $data['featured_property'] = 1;
@@ -117,11 +118,31 @@ class ListingController extends Controller
         if ($data['step'] == 4) {
             $listing->update($data);
 
-            AFile::where('target_id', $listing->id)->whereIn('type', ['listing_photo', 'listing_floorplans', 'listing_document'])->delete();
+            $img_order_ids = explode(',', $data['img_order']);
+            if (count($img_order_ids) > 0) {
+                foreach ($img_order_ids as $key => $img_order_id) {
+                    if ($img_order_id) {
+                        $priority = count($img_order_ids) - $key;
+                        AFile::find($img_order_id)->update([
+                            'priority' => $priority
+                        ]);
+                    }
+                }
+                // return $imgs = AFile::whereIn('id', $img_order_ids)
+                //     ->where('type', 'listing_photo')->get();
+                // foreach ($imgs as $key => $img) {
+                //     $priority = count($img_order_ids) - $key;
+                //     return $img;
+                //     $img->update([
+                //         'priority' => $priority
+                //     ]);
+                // }
+            }
+            // AFile::where('target_id', $listing->id)->whereIn('type', ['listing_photo', 'listing_floorplans', 'listing_document'])->delete();
 
             $photos = $request->file('photos');
             if ($photos) {
-                foreach ($photos as $file) {
+                foreach ($photos as $key1 => $file) {
                     $attached_path = $file->store('files', 'images');
                     $file_name = $file->getClientOriginalName();
                     $file_ext = $file->extension();
@@ -131,6 +152,7 @@ class ListingController extends Controller
                         'file_ext' => $file_ext,
                         'target_id' => $listing->id,
                         'type' => 'listing_photo',
+                        'priority' => 0 - $key1
                     ]);
                 }
             }

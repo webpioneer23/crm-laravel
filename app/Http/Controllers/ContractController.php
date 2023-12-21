@@ -6,6 +6,7 @@ use App\Models\AFile;
 use App\Models\Contact;
 use App\Models\Contract;
 use App\Models\ContractContact;
+use App\Models\Listing;
 use App\Models\TagnameObject;
 use Illuminate\Http\Request;
 
@@ -26,7 +27,8 @@ class ContractController extends Controller
     public function create()
     {
         $contacts = Contact::all();
-        return view('contract.create', compact('contacts'));
+        $listings = Listing::all();
+        return view('contract.create', compact('contacts', 'listings'));
     }
 
     /**
@@ -91,7 +93,8 @@ class ContractController extends Controller
     public function edit(Contract $contract)
     {
         $contacts = Contact::all();
-        return view('contract.edit', compact('contract', 'contacts'));
+        $listings = Listing::all();
+        return view('contract.edit', compact('contract', 'contacts', 'listings'));
     }
 
     /**
@@ -103,7 +106,6 @@ class ContractController extends Controller
         // if ($request->comment) {
         //     $data['comment'] = $request->comment . " " . date('Y-m-d H:i:s') . " " . auth()->user()->name;
         // }
-
         $contract->update($data);
 
         ContractContact::where([

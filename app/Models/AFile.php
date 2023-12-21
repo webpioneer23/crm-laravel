@@ -10,6 +10,6 @@ class AFile extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-        'path', 'target_id', 'type', 'file_name', 'file_ext',
+        'path', 'target_id', 'type', 'file_name', 'file_ext', 'priority'
     ];
 }

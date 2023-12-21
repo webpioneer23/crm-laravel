@@ -12,6 +12,7 @@ class Listing extends Model
 
     protected $fillable = [
         // detail
+        'listing_id',
         'step',
         'status',
         'featured_property',
@@ -79,6 +80,7 @@ class Listing extends Model
         'inspection_type',
         'inspection_booking_setting',
         'inspection_user',
+
     ];
 
 
@@ -94,7 +96,7 @@ class Listing extends Model
 
     public function getPhotosAttribute()
     {
-        $photos = AFile::where(['target_id' => $this->id, 'type' => 'listing_photo'])->get();
+        $photos = AFile::where(['target_id' => $this->id, 'type' => 'listing_photo'])->orderBy('priority', 'DESC')->get();
         return $photos;
     }
     public function getFloorplansAttribute()

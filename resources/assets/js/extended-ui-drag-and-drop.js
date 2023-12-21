@@ -32,8 +32,10 @@
           return order ? order.split('|') : [];
         },
         set: function (sortable) {
+          console.log('sortable->>>>', sortable);
+
           var order = sortable.toArray();
-          console.log(order, 'foooooooooooooooooooooooo');
+          console.log(order, 'foooooooooooooo---oooooooooo');
           $('.visuaplayoutCol01').attr('value', order);
         }
       },

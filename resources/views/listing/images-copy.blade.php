@@ -5,10 +5,11 @@
     <div class="content-header mb-3">
         <h5 class="mb-0">UPLOAD IMAGES</h5>
     </div>
-    <div class="row">
+    <input type="hidden" name="img_order" class="img-order">
+    <div class="d-flex flex-wrap gap-2" id="listing-photos">
         @foreach($listing->photos as $photo)
-        <div class="col-md-2">
-            <img class="mb-3 img-fluid" src="{{asset('uploads/' . $photo->path)}}" alt="{{$photo->file_name}}">
+        <div class="" data-id="{{$photo->id}}">
+            <img class="rounded-circle mb-3" src="{{asset('uploads/' . $photo->path)}}" alt="{{$photo->file_name}}" height="100" width="100">
         </div>
         @endforeach
     </div>
