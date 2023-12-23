@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
+use App\Models\Property;
 use Illuminate\Http\Request;
 
 class AddressController extends Controller
@@ -70,23 +71,38 @@ class AddressController extends Controller
      */
     public function update(Request $request, Address $address)
     {
-        $request->validate([
-            'property_type' => 'required|string',
-            'street' => 'required|string',
-            'suburb' => 'required|string',
-            'city' => 'required|string',
-            'google_address' => 'required|string',
-        ]);
+        if ($request->step == 1) {
+            $request->validate([
+                'property_type' => 'required|string',
+                'street' => 'required|string',
+                'suburb' => 'required|string',
+                'city' => 'required|string',
+                'google_address' => 'required|string',
+            ]);
 
-        $address->update([
-            'property_type' => $request->property_type,
-            'unit_number' => $request->unit_number,
-            'street' => $request->street,
-            'building' => $request->building,
-            'suburb' => $request->suburb,
-            'city' => $request->city,
-            'google_address' => $request->google_address,
-        ]);
+            $address->update([
+                'property_type' => $request->property_type,
+                'unit_number' => $request->unit_number,
+                'street' => $request->street,
+                'building' => $request->building,
+                'suburb' => $request->suburb,
+                'city' => $request->city,
+                'google_address' => $request->google_address,
+                'step' => $request->step + 1,
+            ]);
+            return back();
+        }
+        if ($request->step == 2) {
+            $data = $request->except('_token');
+            if ($address->property_id) {
+                $property = Property::find($address->property_id)->update($data);
+            } else {
+                $property = Property::create($data);
+                $address->property_id = $property->id;
+                $address->save();
+            }
+            return redirect()->route('address.index');
+        }
         return redirect()->route('address.index');
     }
 

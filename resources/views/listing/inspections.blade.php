@@ -11,7 +11,7 @@
             <div class="content-header mb-3">
                 <h5 class="mb-0">NEW INSPECTION TIME</h5>
             </div>
-            <div class="row g-3 mb-3">
+            <div class="row g-3 ">
                 <div class="col-sm-6">
                     <label class="form-label" for="form-repeater-1-1">Date</label>
                     <input class="form-control" type="date" name="inspection_date" id="form-repeater-1-1">
@@ -34,22 +34,7 @@
                 </div>
             </div>
 
-            <div class="content-header mt-3">
-                <h5 class="mb-0">INSPECTION BOOKING SETTINGS</h5>
-            </div>
             <div class="row">
-
-
-                <div class="col-md-6 p-4">
-                    @foreach($inspection_setting_list as $key => $inspection_set)
-                    <div class="form-check">
-                        <input name="inspection_booking_setting" class="form-check-input" type="radio" id="form-repeater-1-{{5 + $key}}" value="{{$inspection_set}}" />
-                        <label class="form-check-label" for="form-repeater-1-{{5 + $key}}">
-                            {{$inspection_set}}
-                        </label>
-                    </div>
-                    @endforeach
-                </div>
                 <div class="col-md-6 p-4">
                     <button class="btn btn-label-danger mt-4" data-repeater-delete>
                         <i class="ti ti-x ti-xs me-1"></i>

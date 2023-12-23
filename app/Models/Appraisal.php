@@ -22,6 +22,7 @@ class Appraisal extends Model
         'delivery_type',
         'reason_lost',
         'interest',
+        'property_id',
     ];
 
     public function address()
@@ -33,5 +34,14 @@ class Appraisal extends Model
     public function contact()
     {
         return $this->hasOne(Contact::class, 'id', 'contact_id');
+    }
+
+    public function getPropertyAttribute()
+    {
+        if ($this->property_id) {
+            $property = Property::find($this->property_id);
+            return $property;
+        }
+        return null;
     }
 }

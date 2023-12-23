@@ -23,17 +23,18 @@
     <div class="content-header mb-3">
         <h5 class="mb-0">UPLOAD FLOORPLANS</h5>
     </div>
-    <div class="row">
+    <input type="hidden" name="floorplan_photos" class="floorplan-photos">
+    <div class="d-flex flex-wrap gap-2" id="floorplan-photos">
         @foreach($listing->floorplans as $floorplan)
-        <div class="col-md-2">
-            <img class="mb-3 img-fluid" src="{{asset('uploads/' . $floorplan->path)}}" alt="{{$floorplan->file_name}}">
+        <div class="" data-id="{{$floorplan->id}}">
+            <img class="mb-3 rounded-circle" src="{{asset('uploads/' . $floorplan->path)}}" alt="{{$floorplan->file_name}}" height="150" width="150">
         </div>
         @endforeach
     </div>
     <div class="row g-3 mb-3">
         <div class="col-sm-6">
             <label for="floorplans" class="form-label">Upload floorplans...</label>
-            <input class="form-control" type="file" id="floorplans" name="floorplans[]" multiple>
+            <input onchange="checkFileCount(this)" class="form-control" type="file" id="floorplans" name="floorplans[]" multiple>
         </div>
     </div>
 
@@ -125,4 +126,14 @@
             warningMessage.textContent = ''; // Clear the warning if length is within limit
         }
     });
+
+    function checkFileCount(input) {
+        const maxFileCount = 2; // Set your desired maximum file count
+        const files = input.files;
+
+        if (files.length > maxFileCount) {
+            alert(`You can only select up to ${maxFileCount} files.`);
+            input.value = ''; // Clear the file input
+        }
+    }
 </script>

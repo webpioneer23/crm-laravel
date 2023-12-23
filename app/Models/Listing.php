@@ -101,7 +101,7 @@ class Listing extends Model
     }
     public function getFloorplansAttribute()
     {
-        $photos = AFile::where(['target_id' => $this->id, 'type' => 'listing_floorplans'])->get();
+        $photos = AFile::where(['target_id' => $this->id, 'type' => 'listing_floorplans'])->orderBy('priority', 'DESC')->get();
         return $photos;
     }
     public function getDocumentsAttribute()

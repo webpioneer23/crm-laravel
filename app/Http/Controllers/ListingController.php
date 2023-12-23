@@ -128,17 +128,19 @@ class ListingController extends Controller
                         ]);
                     }
                 }
-                // return $imgs = AFile::whereIn('id', $img_order_ids)
-                //     ->where('type', 'listing_photo')->get();
-                // foreach ($imgs as $key => $img) {
-                //     $priority = count($img_order_ids) - $key;
-                //     return $img;
-                //     $img->update([
-                //         'priority' => $priority
-                //     ]);
-                // }
             }
-            // AFile::where('target_id', $listing->id)->whereIn('type', ['listing_photo', 'listing_floorplans', 'listing_document'])->delete();
+
+            $floorplan_photos_ids = explode(',', $data['floorplan_photos']);
+            if (count($floorplan_photos_ids) > 0) {
+                foreach ($floorplan_photos_ids as $key1 => $floorplan_photos_id) {
+                    if ($floorplan_photos_id) {
+                        $priority = count($floorplan_photos_ids) - $key1;
+                        AFile::find($floorplan_photos_id)->update([
+                            'priority' => $priority
+                        ]);
+                    }
+                }
+            }
 
             $photos = $request->file('photos');
             if ($photos) {
@@ -160,6 +162,8 @@ class ListingController extends Controller
 
             $floorplans = $request->file('floorplans');
             if ($floorplans) {
+
+                AFile::where(['type' => 'listing_floorplans', 'target_id' => $listing->id])->delete();
 
                 foreach ($floorplans as $file) {
                     $attached_path = $file->store('files', 'images');

@@ -17,6 +17,9 @@ class Address extends Model
         'building',
         'suburb',
         'city',
+
+        'step',
+        'property_id'
     ];
 
     public function getFullContactsAttribute()
@@ -24,5 +27,11 @@ class Address extends Model
         $contact_addresses = AddressContact::where('address_id', $this->id)->pluck('contact_id');
         $contacts = Contact::whereIn('id', $contact_addresses)->get();
         return $contacts;
+    }
+
+    public function getPropertyAttribute()
+    {
+        $property = Property::find($this->property_id);
+        return $property;
     }
 }
