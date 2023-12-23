@@ -49,7 +49,6 @@
 
   const initList = list.map(item => ({
     "inspection_type": item.inspection_type,
-    "inspection_booking_setting": item.inspection_booking_setting,
     "inspection_date": item.inspection_date,
     "start_time": item.start_time,
     "end_time": item.end_time,
@@ -76,12 +75,32 @@
       }
     }
   });
+
+  // floorplan sort
+  const floorplanPhotos = document.getElementById('floorplan-photos');
+  console.log({
+    floorplanPhotos
+  })
+  var sort1 = Sortable.create(floorplanPhotos, {
+    animation: 150,
+    group: 'imgFloorplan',
+    store: {
+      get: function(sortable) {
+        var order = localStorage.getItem(sortable.options.group);
+        return order ? order.split('|') : [];
+      },
+      set: function(sortable) {
+        var order = sortable.toArray();
+        $('.floorplan-photos').attr('value', order);
+      }
+    }
+  });
 </script>
 @endsection
 
 
 @section('content')
-<h4 class="py-3 mb-4"><span class="text-muted fw-light">Create /</span> Edit</h4>
+<h4 class="py-3 mb-4"><span class="text-muted fw-light">Listing /</span> Edit</h4>
 
 <!-- Tabs -->
 <div class="row">

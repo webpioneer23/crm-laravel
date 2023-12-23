@@ -382,6 +382,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('/address', AddressController::class);
     Route::resource('/appraisal', AppraisalController::class);
+    Route::get('/address-property', [AppraisalController::class, 'loadAddressProperty'])->name('address.property');
+
+
     Route::resource('/complex', ComplexController::class);
     Route::get('/complex-files/{id}', [ComplexController::class, 'preview_files'])->name('complex.files');
     Route::post('/complex-wishlist/{id}', [ComplexController::class, 'wishlist_store'])->name('complex.wishlist.store');
