@@ -124,6 +124,12 @@
           "slug": "tag.create"
         }
       ]
+    },
+    {
+      "name": "History",
+      "icon": "menu-icon tf-icons ti ti-list-search",
+      "slug": "history.index",
+      "url": "history"
     }
   ]
 }

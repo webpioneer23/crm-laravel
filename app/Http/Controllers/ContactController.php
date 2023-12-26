@@ -10,6 +10,7 @@ use App\Models\Tag;
 use App\Models\TagContact;
 use App\Models\TagObject;
 use Illuminate\Http\Request;
+use App\Services\HistoryService;
 
 class ContactController extends Controller
 {
@@ -94,6 +95,16 @@ class ContactController extends Controller
             }
         }
 
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'created',
+            'source' => 'contact',
+            'source_id' => $contact->id,
+            'note' => $contact->first_name . " " . $contact->last_name,
+        ];
+
+        HistoryService::addRecord($history);
+
         return redirect()->route('contact.index');
     }
 
@@ -120,9 +131,25 @@ class ContactController extends Controller
      */
     public function update(Request $request, Contact $contact)
     {
-
+        $history_type = "edited";
+        $history_source = "contact";
         if (isset($request->edit_type) && $request->edit_type == 'buyer_preferences') {
-            $updated = $request->except('_token', 'edit_type');
+            $old_contact = [
+                'listing_types' => $contact->listing_types,
+                "land_size_min" => $contact->land_size_min,
+                "land_size_max" => $contact->land_size_max,
+                "land_size_unit" => $contact->land_size_unit,
+                "floor_size_min" => $contact->floor_size_min,
+                "floor_size_max" => $contact->floor_size_max,
+                "floor_size_unit" => $contact->floor_size_unit,
+                "car_spaces_min" => $contact->car_spaces_min,
+                "car_spaces_max" => $contact->car_spaces_max,
+                "suburbs" => $contact->suburbs,
+                "property_tags" => json_encode($contact->property_tags),
+                "comments" => $contact->comments,
+            ];
+
+            $updated = $request->except('_token', '_method', 'edit_type');
             $updated['listing_types'] = json_encode($request->listing_types);
             $contact->update($updated);
 
@@ -141,14 +168,41 @@ class ContactController extends Controller
             }
         } elseif (isset($request->edit_type) && $request->edit_type == 'relationship') {
             $data = $request->except('_token', 'edit_type');
-            $data['source_id'] = auth()->user()->id;
+            $data['source_id'] = $contact->id;
 
             ContactRelationship::create($data);
+
+            $history_type = "created";
+            $history_source = "contact relationship";
+
+            $target_contact = Contact::find($data['target_id']);
+
+            $history = [
+                'user_id' => auth()->user()->id,
+                'type' => $history_type,
+                'source' => $history_source,
+                'source_id' => $contact->id,
+                'note' => "The " . $data['relationship'] . " relationship was created between $contact->first_name and $target_contact->first_name.",
+            ];
+            HistoryService::addRecord($history);
+
             return back();
         } else {
             $request->validate([
                 'first_name' => 'required|string',
             ]);
+
+            $old_contact = [
+                'first_name' => $contact->first_name,
+                'last_name' => $contact->last_name,
+                'full_name' => $contact->full_name,
+                'mobile' => $contact->mobile,
+                'email' => $contact->email,
+                'notes' => $contact->notes,
+                'rent_type' => $contact->rent_type,
+                'residing_address' => $contact->residing_address,
+                'social_links' => $contact->social_links,
+            ];
 
             $updated = [
                 'first_name' => $request->first_name,
@@ -190,6 +244,18 @@ class ContactController extends Controller
             }
         }
 
+
+        $diff = HistoryService::getObjectDifference($old_contact, $updated);
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => $history_type,
+            'source' => $history_source,
+            'source_id' => $contact->id,
+            'note' => json_encode($diff),
+        ];
+        HistoryService::addRecord($history);
+
         return redirect()->route('contact.index');
     }
 
@@ -218,9 +284,24 @@ class ContactController extends Controller
         return view('contact.contact-related', compact('contacts', 'contact', 'list'));
     }
 
-    public function relationship_destroy($contact_id)
+    public function relationship_destroy($contact_relationship_id)
     {
-        ContactRelationship::findorFail($contact_id)->delete();
+        $contact_relationship = ContactRelationship::findorFail($contact_relationship_id);
+        $source = Contact::find($contact_relationship->source_id);
+        $target = Contact::find($contact_relationship->target_id);
+
+        $contact_relationship->delete();
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'deleted',
+            'source' => 'contact relationship',
+            'source_id' => $contact_relationship_id,
+            'note' => "The " . $contact_relationship['relationship'] . " relationship was deleted between $source->first_name and $target->first_name.",
+        ];
+
+        HistoryService::addRecord($history);
+
         return back();
     }
 }
