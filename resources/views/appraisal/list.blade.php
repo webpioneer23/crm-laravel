@@ -36,7 +36,8 @@
               {{$key +1}}
             </td>
             <td>
-              {{$item->address->unit_number ? $item->address->unit_number."/" : ""}}{{$item->address->unit_number ? $item->address->unit_number."/" : ""}}{{$item->address->street}}, {{$item->address->city}}
+              {{$item->address?->unit_number ? $item->address->unit_number."/" : ""}}
+              {{$item->address?->unit_number ? $item->address->unit_number."/" : ""}}{{$item->address?->street}}, {{$item->address?->city}}
 
             </td>
             <td>{{$item->contact?->first_name." ".$item->contact?->last_name}}</td>

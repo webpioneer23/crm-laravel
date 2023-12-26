@@ -31,13 +31,13 @@ class Helpers
       'footerFixed' => false,
       'customizerControls' => [
         'rtl',
-      'style',
-      'headerType',
-      'contentLayout',
-      'layoutCollapsed',
-      'showDropdownOnHover',
-      'layoutNavbarOptions',
-      'themes',
+        'style',
+        'headerType',
+        'contentLayout',
+        'layoutCollapsed',
+        'showDropdownOnHover',
+        'layoutNavbarOptions',
+        'themes',
       ],
       //   'defaultLanguage'=>'en',
     ];
@@ -186,5 +186,13 @@ class Helpers
         }
       }
     }
+  }
+
+  public static function convertToDisplayName($inputString)
+  {
+    $words = explode('_', $inputString);
+    $capitalizedWords = array_map('ucfirst', $words);
+    $result = implode(' ', $capitalizedWords);
+    return $result;
   }
 }

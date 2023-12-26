@@ -292,7 +292,7 @@
               <label class="form-label" for="house_size">House size</label>
               <div class="row">
                 <div class="col-md-6">
-                  <input type="number" class="form-control" name="house_size" id="house_size" " step=" 0.01">
+                  <input type="number" class="form-control" name="house_size" id="house_size" step="0.01">
                 </div>
                 <div class="col-md-6">
 
