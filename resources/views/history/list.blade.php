@@ -25,7 +25,7 @@
           @foreach($list as $key => $item)
           <tr>
             <td>
-              {{$key+1}}
+              {{ ($list->currentPage() - 1) * $list->perPage() + $key+1}}
             </td>
             <td>
               {{date('d, M Y - H:i A', strtotime($item->created_at))}}
@@ -38,7 +38,7 @@
               @endif
             </td>
             <td>
-              @if($item->type == 'edited')
+              @if($item->note_json == 1)
               <ul>
                 @foreach(json_decode($item->note) as $key => $note)
                 <li>{!! Helper::convertToDisplayName($key) !!} : {{$note->old}} -> {{$note->new}}</li>
@@ -46,14 +46,15 @@
               </ul>
               @else
               {{$item->note}}
-
               @endif
             </td>
           </tr>
           @endforeach
         </tbody>
       </table>
+
     </div>
+    {{$list->links()}}
 
   </div>
 </div>

@@ -10,7 +10,7 @@ class History extends Model
     use HasFactory;
     protected $fillable = [
         "user_id", "type", "source", "source_id",
-        "note"
+        "note", "note_json"
     ];
 
     public function user()

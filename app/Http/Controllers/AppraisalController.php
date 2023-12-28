@@ -6,6 +6,7 @@ use App\Models\Address;
 use App\Models\Appraisal;
 use App\Models\Contact;
 use App\Models\Property;
+use App\Services\HistoryService;
 use Illuminate\Http\Request;
 
 class AppraisalController extends Controller
@@ -67,7 +68,18 @@ class AppraisalController extends Controller
             'interest',
         );
         $detail['property_id'] = $property->id;
-        Appraisal::create($detail);
+        $appraisal = Appraisal::create($detail);
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'created',
+            'source' => 'appraisal',
+            'source_id' => $appraisal->id,
+            // 'note' => $contact->first_name . " " . $contact->last_name,
+        ];
+
+        HistoryService::addRecord($history);
+
         return redirect()->route('appraisal.index');
     }
 
@@ -111,7 +123,10 @@ class AppraisalController extends Controller
             "land_size_unit",
             "energy_efficiency_rating",
         );
-        Property::find($appraisal->property_id)->update($property);
+
+        if ($appraisal->property_id) {
+            Property::find($appraisal->property_id)->update($property);
+        }
 
         $detail = $request->only(
             'address_id',
@@ -127,6 +142,16 @@ class AppraisalController extends Controller
             'interest',
         );
         $appraisal->update($detail);
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'edited',
+            'source' => 'appraisal',
+            'source_id' => $appraisal->id,
+            'note' => "ID: $appraisal->id",
+        ];
+
+        HistoryService::addRecord($history);
+
         return redirect()->route('appraisal.index');
     }
 
@@ -136,6 +161,16 @@ class AppraisalController extends Controller
     public function destroy(Appraisal $appraisal)
     {
         $appraisal->delete();
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'deleted',
+            'source' => 'appraisal',
+            'source_id' => $appraisal->id,
+            // 'note' => $contact->first_name . " " . $contact->last_name,
+        ];
+
+        HistoryService::addRecord($history);
         return back();
     }
 
