@@ -9,6 +9,7 @@ use App\Models\Listing;
 use App\Models\ListingInspection;
 use App\Models\ListingTag;
 use App\Models\Tag;
+use App\Services\HistoryService;
 use Illuminate\Http\Request;
 
 class ListingController extends Controller
@@ -45,12 +46,18 @@ class ListingController extends Controller
         }
         $listing = Listing::create($data);
 
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'created',
+            'source' => 'listing',
+            'source_id' => $listing->id,
+            // 'note' => $contact->first_name . " " . $contact->last_name,
+        ];
+
+        HistoryService::addRecord($history);
+
+
         return redirect()->route('listing.edit', $listing->id);
-
-
-        // $contacts = Contact::all();
-        // $addresses = Address::all();
-        // return view('listing.edit', compact('contacts', 'addresses', 'listing'));
     }
 
     /**
@@ -78,6 +85,17 @@ class ListingController extends Controller
     public function update(Request $request, Listing $listing)
     {
         $data = $request->except('_token');
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'edited',
+            'source' => 'listing',
+            'source_id' => $listing->id,
+            'note' => "ID: $listing->id",
+        ];
+
+        HistoryService::addRecord($history);
+
 
         if ($data['step'] == 2) {
             if (isset($data['featured_property']) && $data['featured_property'] == 'on') {
@@ -208,8 +226,8 @@ class ListingController extends Controller
             return redirect()->route('listing.index');
         }
 
+
         return redirect()->route('listing.edit', $listing->id);
-        //
     }
 
     /**
@@ -218,6 +236,17 @@ class ListingController extends Controller
     public function destroy(Listing $listing)
     {
         $listing->delete();
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'deleted',
+            'source' => 'listing',
+            'source_id' => $listing->id,
+            // 'note' => $contact->first_name . " " . $contact->last_name,
+        ];
+
+        HistoryService::addRecord($history);
+
         return back();
     }
 }

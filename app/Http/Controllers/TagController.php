@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tag;
+use App\Services\HistoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -34,9 +35,19 @@ class TagController extends Controller
             'name' => 'required|string',
         ]);
 
-        Tag::create([
+        $tag = Tag::create([
             'name' => $request->name
         ]);
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'created',
+            'source' => 'tag',
+            'source_id' => $tag->id,
+            'note' => $tag->name,
+        ];
+
+        HistoryService::addRecord($history);
 
         return redirect()->route('tag.index');
     }
@@ -66,8 +77,21 @@ class TagController extends Controller
             'name' => 'required|string',
         ]);
 
+        $old_tag_name = $tag->name;
+
         $tag->name = $request->name;
         $tag->save();
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'edited',
+            'source' => 'tag',
+            'source_id' => $tag->id,
+            'note' => "$old_tag_name -> $tag->name",
+        ];
+
+        HistoryService::addRecord($history);
+
         return redirect()->route('tag.index');
     }
 
@@ -79,6 +103,17 @@ class TagController extends Controller
         if ($tag) {
             $tag->delete();
         }
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'deleted',
+            'source' => 'tag',
+            'source_id' => $tag->id,
+            'note' => $tag->name,
+            "note_json" => true
+        ];
+
+        HistoryService::addRecord($history);
+
         return redirect()->route('tag.index');
     }
 }

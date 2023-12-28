@@ -126,6 +126,7 @@ class AddressController extends Controller
                 'source' => 'address',
                 'source_id' => $address->id,
                 'note' => json_encode($diff),
+                "note_json" => true
             ];
 
             HistoryService::addRecord($history);
@@ -181,6 +182,7 @@ class AddressController extends Controller
                 'source' => 'address',
                 'source_id' => $address->id,
                 'note' => json_encode($diff),
+                "note_json" => true
             ];
 
             HistoryService::addRecord($history);

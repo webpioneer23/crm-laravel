@@ -253,6 +253,7 @@ class ContactController extends Controller
             'source' => $history_source,
             'source_id' => $contact->id,
             'note' => json_encode($diff),
+            "note_json" => true
         ];
         HistoryService::addRecord($history);
 

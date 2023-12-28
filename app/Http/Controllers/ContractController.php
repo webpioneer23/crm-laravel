@@ -8,6 +8,7 @@ use App\Models\Contract;
 use App\Models\ContractContact;
 use App\Models\Listing;
 use App\Models\TagnameObject;
+use App\Services\HistoryService;
 use Illuminate\Http\Request;
 
 class ContractController extends Controller
@@ -76,6 +77,16 @@ class ContractController extends Controller
                 ]);
             }
         }
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'created',
+            'source' => 'contract',
+            'source_id' => $contract->id,
+            // 'note' => $contact->first_name . " " . $contact->last_name,
+        ];
+
+        HistoryService::addRecord($history);
         return redirect()->route('contract.index');
     }
 
@@ -153,6 +164,17 @@ class ContractController extends Controller
                 ]);
             }
         }
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'edited',
+            'source' => 'contract',
+            'source_id' => $contract->id,
+            'note' => "ID: $contract->id"
+        ];
+
+        HistoryService::addRecord($history);
+
         return redirect()->route('contract.index');
     }
 
@@ -162,6 +184,16 @@ class ContractController extends Controller
     public function destroy(Contract $contract)
     {
         $contract->delete();
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'deleted',
+            'source' => 'contract',
+            'source_id' => $contract->id,
+            // 'note' => $contact->first_name . " " . $contact->last_name,
+        ];
+
+        HistoryService::addRecord($history);
+
         return back();
     }
 

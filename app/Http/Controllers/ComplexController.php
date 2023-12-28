@@ -12,6 +12,7 @@ use App\Models\Contact;
 use App\Models\Tag;
 use App\Models\TagContact;
 use App\Models\WishlistTag;
+use App\Services\HistoryService;
 use Illuminate\Http\Request;
 
 class ComplexController extends Controller
@@ -83,6 +84,16 @@ class ComplexController extends Controller
                 }
             }
         }
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'created',
+            'source' => 'complex',
+            'source_id' => $complex->id,
+            'note' => $complex->name,
+        ];
+
+        HistoryService::addRecord($history);
 
         return redirect()->route('complex.index');
     }
@@ -173,6 +184,17 @@ class ComplexController extends Controller
             }
         }
 
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'edited',
+            'source' => 'complex',
+            'source_id' => $complex->id,
+            'note' => "ID: $complex->id",
+        ];
+
+        HistoryService::addRecord($history);
+
+
         return redirect()->route('complex.index');
     }
 
@@ -182,6 +204,19 @@ class ComplexController extends Controller
     public function destroy(Complex $complex)
     {
         $complex->delete();
+
+
+        $history = [
+            'user_id' => auth()->user()->id,
+            'type' => 'deleted',
+            'source' => 'complex',
+            'source_id' => $complex->id,
+            'note' => $complex->name,
+        ];
+
+        HistoryService::addRecord($history);
+
+
         return back();
     }
 
