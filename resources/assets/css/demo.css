@@ -137,3 +137,10 @@
   white-space: nowrap;
   max-width: 150px;
 }
+
+.position-bottom-right {
+  position: fixed !important;
+  bottom: 0;
+  right: 0;
+  width: 800px !important;
+}

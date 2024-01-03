@@ -126,6 +126,12 @@
       ]
     },
     {
+      "name": "SMS Integration",
+      "icon": "menu-icon tf-icons ti ti-phone",
+      "slug": "sms.index",
+      "url": "sms"
+    },
+    {
       "name": "History",
       "icon": "menu-icon tf-icons ti ti-list-search",
       "slug": "history.index",
