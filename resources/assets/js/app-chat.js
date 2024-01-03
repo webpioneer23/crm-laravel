@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Send Message
-    formSendMessage.addEventListener('submit', e => {
+    formSendMessage?.addEventListener('submit', e => {
       e.preventDefault();
       if (messageInput.value) {
         // Create a div and add a class

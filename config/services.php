@@ -30,5 +30,9 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-
+    'sms' => [
+        'key' => env('SMS_API_KEY'),
+        'number' => env('SMS_NUMBER'),
+        'webhook_key' => env('SMS_WEBHOOK_KEY'),
+    ],
 ];
