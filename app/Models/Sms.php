@@ -18,6 +18,7 @@ class Sms extends Model
         'sent_at',
         'deliveried_at',
         'status',
+        'read',
     ];
 
     public function fromContact()

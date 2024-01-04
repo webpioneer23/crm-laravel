@@ -31,6 +31,8 @@
     const tagListEl = document.querySelector('#numbers');
     const contactList = <?php echo json_encode($contacts); ?>;
 
+    console.log("contactList->>", contactList)
+
     const optionList = contactList.map(item => `${item.first_name}(${item.mobile})`)
 
     let tagList = new Tagify(tagListEl, {
@@ -53,6 +55,11 @@
     function scrollToBottom() {
         chatHistoryBody.scrollTo(0, chatHistoryBody.scrollHeight);
     }
+
+    function scrollToUp() {
+        chatHistoryBody.scrollTo(0, 0);
+    }
+
     scrollToBottom();
 
     function displayChatHistory(chats) {
@@ -103,9 +110,6 @@
                                 </div>`;
                 } else {
                     const basePath = "<?php echo asset('uploads'); ?>";
-                    console.log({
-                        basePath
-                    })
                     fromPhoto = `<img src="${basePath}/${chat.from_photo}" alt="Avatar" class="rounded-circle">`;
                 }
                 chatEle += `
@@ -137,25 +141,72 @@
 
         $(".chat-history").html(chatEle);
         messageInput.value = '';
-        scrollToBottom();
+        scrollToUp();
     }
 
     function loadChatHistory(chats) {
         displayChatHistory(chats)
     }
 
-    function selectContact(mobile) {
-        $("#selected-number").val(mobile)
+    function selectContact(contact, type) {
+        let number = "";
+        let detail = `<i class="ti ti-menu-2 ti-sm cursor-pointer d-lg-none d-block me-2" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-contacts"></i>`;
+        if (type === 'contact') {
+            const selectedContact = contactList.find(con => con.id == contact);
+            console.log("contact-- json->>>", selectedContact)
+            number = selectedContact.mobile;
+            let img = "";
+            if (selectedContact.photo) {
+                const basePath = "<?php echo asset('uploads'); ?>";
+                img = `<img src="${basePath}/${selectedContact.photo}" alt="Avatar" class="rounded-circle" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right">`;
+            } else {
+                img = `
+                <div class="avatar d-block flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-primary">
+                        ${selectedContact.first_name?.chatAt(0).toUpperCase()} ${selectedContact.last_name ? selectedContact.last_name.chatAt(0).toUpperCase(): ''} 
+                    </span>
+                </div>
+                `;
+            }
+            detail += `
+                <input type="hidden" value="${number}" id="selected-number">
+                <div class="flex-shrink-0 avatar">
+                    ${img}
+                </div>
+                <div class="chat-contact-info flex-grow-1 ms-2">
+                    <h6 class="m-0">${selectedContact.first_name} ${selectedContact.last_name}</h6>
+                </div>
+            `;
+        } else {
+            number = contact;
+            detail += `
+                <input type="hidden" value="${number}" id="selected-number">
+                <div class="flex-shrink-0 avatar">
+                    <div class="avatar d-block flex-shrink-0">
+                        <span class="avatar-initial rounded-circle bg-label-primary">
+                            ${number.slice(-2).toUpperCase()}
+                        </span>
+                    </div>
+                </div>
+                <div class="chat-contact-info flex-grow-1 ms-2">
+                    <h6 class="m-0">${number}</h6>
+                </div>
+            `;
+        }
+
+        $(".contact-detail").html(detail);
+
         $.ajax({
             url: "{{route('sms.history')}}",
             type: 'get',
             data: {
-                number: mobile
+                number
             },
             type: 'get',
             success: function(res) {
                 console.log("res-->>", res)
                 displayChatHistory(res.chats)
+
             },
             error: function(err) {
                 console.log({
@@ -183,7 +234,6 @@
                 },
                 type: 'post',
                 success: function(res) {
-                    console.log("success->>", res)
                     if (res.status) {
                         displayChatHistory(res.chats)
                     } else {
@@ -319,7 +369,7 @@
                     @forelse($contact_list as $key => $contact)
                     <li class="chat-contact-list-item {{$key == 0 ? 'active' : ''}}">
                         @if(gettype($contact) == 'object')
-                        <a class="d-flex align-items-center" onclick="selectContact('{{$contact->mobile}}')">
+                        <a class="d-flex align-items-center" onclick="selectContact('{{$contact->id}}', 'contact')">
                             @if($contact->photo)
                             <div class="flex-shrink-0 avatar avatar-offline">
                                 <img src="{{asset('uploads/' . $contact->photo)}}" alt="Avatar" class="rounded-circle">
@@ -335,9 +385,12 @@
                                 <h6 class="chat-contact-name text-truncate m-0">{{$contact->first_name." ".$contact->last_name}}</h6>
                                 <p class="chat-contact-status text-muted text-truncate mb-0">{{$contact->mobile}}</p>
                             </div>
+                            @if(isset($unread_list[$contact->mobile]) && $unread_list[$contact->mobile] > 0)
+                            <span class="badge badge-center rounded-pill bg-danger">{{$unread_list[$contact->mobile]}}</span>
+                            @endif
                         </a>
                         @else
-                        <a class="d-flex align-items-center" onclick="selectContact('{{$contact}}')">
+                        <a class="d-flex align-items-center" onclick="selectContact('{{$contact}}', 'number')">
                             <div class="avatar d-block flex-shrink-0">
                                 <span class="avatar-initial rounded-circle bg-label-primary">
                                     {{substr($contact, -2)}}
@@ -346,6 +399,9 @@
                             <div class="chat-contact-info flex-grow-1 ms-2">
                                 <h6 class="chat-contact-name text-truncate m-0">{{$contact}}</h6>
                             </div>
+                            @if(isset($unread_list[$contact]) && $unread_list[$contact] > 0)
+                            <span class="badge badge-center rounded-pill bg-danger">{{$unread_list[$contact]}}</span>
+                            @endif
                         </a>
                         @endif
                     </li>
@@ -359,15 +415,12 @@
         </div>
         <!-- /Chat contacts -->
 
-
-
-
         <!-- Chat History -->
         <div class="col app-chat-history bg-body">
             <div class="chat-history-wrapper">
                 <div class="chat-history-header border-bottom">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex overflow-hidden align-items-center">
+                        <div class="d-flex overflow-hidden align-items-center contact-detail">
                             <i class="ti ti-menu-2 ti-sm cursor-pointer d-lg-none d-block me-2" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-contacts"></i>
                             @if(count($contact_list) > 0)
                             <?php
@@ -379,7 +432,7 @@
                             <div class="flex-shrink-0 avatar">
                                 <!-- start avatar -->
                                 @if($first_contact->photo)
-                                <img src="{{asset('uploads/' . $contacts[0]->photo)}}" alt="Avatar" class="rounded-circle" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-sidebar-right">
+                                <img src="{{asset('uploads/' . $contacts[0]->photo)}}" alt="Avatar" class="rounded-circle">
                                 @else
                                 <div class="avatar d-block flex-shrink-0">
                                     <span class="avatar-initial rounded-circle bg-label-primary">
@@ -411,7 +464,6 @@
                             <input type="hidden" value="" id="selected-number">
                             @endif
                         </div>
-
                     </div>
                 </div>
                 <div class="chat-history-body bg-body">

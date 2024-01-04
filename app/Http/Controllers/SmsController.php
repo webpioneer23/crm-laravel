@@ -22,7 +22,8 @@ class SmsController extends Controller
         }
 
 
-        $full_history = Sms::orderBy('updated_at', 'desc')->get();
+
+        $full_history = Sms::orderBy('created_at', 'desc')->get();
         $contact_list = [];
         $contact_list_numbers = [];
         foreach ($full_history as $chat_contact) {
@@ -37,6 +38,8 @@ class SmsController extends Controller
             }
         }
 
+
+
         $chats = [];
         if (count($contact_list) > 0) {
             $first_contact = $contact_list[0];
@@ -48,13 +51,27 @@ class SmsController extends Controller
                 $first_contact_number = $first_contact->mobile;
             }
             if ($first_contact_number) {
+
+                Sms::where(['from_number' => $first_contact_number, 'read' => 0])
+                    ->update([
+                        'read' => 1
+                    ]);
+
+
                 $chats = Sms::where('from_number', $first_contact_number)
                     ->orWhere('to_number', $first_contact_number)
                     ->orderBy('created_at')
                     ->get();
             }
         }
-        return view('sms.list', compact('contact_list', 'contacts', 'chats'));
+
+        $unread_list = [];
+
+        foreach ($contact_list_numbers as $key1 => $contact_list_number) {
+            $number_sms = Sms::where(['from_number' => $contact_list_number, 'sender' => 0, 'read' => 0])->count();
+            $unread_list[$contact_list_number] = $number_sms;
+        }
+        return view('sms.list', compact('contact_list', 'contacts', 'chats', 'unread_list'));
     }
 
     /**
@@ -170,6 +187,11 @@ class SmsController extends Controller
     public function getChatsByNumber(Request $request)
     {
         $number = $request->number;
+        Sms::where(['from_number' => $number, 'read' => 0])
+            ->update([
+                'read' => 1
+            ]);
+
         $chats = Sms::where('from_number', $number)
             ->orWhere('to_number', $number)
             ->orderBy('created_at')
