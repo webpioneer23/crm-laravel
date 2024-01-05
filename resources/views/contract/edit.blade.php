@@ -45,6 +45,43 @@
       closeOnSelect: false
     }
   });
+
+  // auto add comment
+  function addComment() {
+    $(".comment-list").append(`
+      <div class="col-sm-12 mb-2">
+        <textarea name="comment[]" class="form-control" placeholder=""></textarea>
+      </div>
+    `)
+  }
+
+
+  const conditionDates = <?php echo json_encode($contract->full_conditions); ?>;
+  const conditionDateMap = [];
+  conditionDates.map(conDate => {
+    conditionDateMap[conDate.tag_name] = conDate.tag_date;
+  })
+
+
+
+  function handleConditions() {
+    const jsonConditions = $("#conditions").val();
+    if (jsonConditions) {
+
+      const conditions = JSON.parse(jsonConditions);
+      const conditionListEle = conditions.map(con => `
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label" for="deposit_due_date">${con.value} Date</label>
+          <div class="col-sm-10">
+            <input type="date" name="${con.value}" class="form-control" placeholder="${con.value} Date" value="${conditionDateMap[con.value]}" />
+          </div>
+        </div>
+      `);
+
+      $(".conditions-date").html(conditionListEle)
+
+    }
+  }
 </script>
 
 @endsection
@@ -122,12 +159,33 @@
           </div>
         </div>
 
+        <?php
+
+
+        $conditions = [];
+        foreach ($contract->full_conditions as $tag_list) {
+          array_push($conditions, $tag_list->tag_name);
+        }
+        ?>
+
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="basic-default-name">Conditions</label>
           <div class="col-sm-10">
-            <input id="conditions" name="conditions" class="form-control" placeholder="Select Conditions" value="{{json_encode($contract->full_conditions)}}">
+            <input id="conditions" name="conditions" class="form-control" placeholder="Select Conditions" value="{{json_encode($conditions)}}" onchange="handleConditions()">
           </div>
         </div>
+
+        <div class="conditions-date">
+          @foreach ($contract->full_conditions as $condition)
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label" for="deposit_due_date">{{$condition->tag_name}} Date</label>
+            <div class="col-sm-10">
+              <input type="date" name="{{$condition->tag_name}}" value="{{$condition->tag_date}}" class="form-control" placeholder="{{$condition->tag_name}} Date" />
+            </div>
+          </div>
+          @endforeach
+        </div>
+
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="deposit_due_date">Deposit Due Date</label>
           <div class="col-sm-10">
@@ -162,9 +220,19 @@
 
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="comment">Comment</label>
+
           <div class="col-sm-10">
-            <textarea name="comment" class="form-control" placeholder="">{{$contract->comment}}</textarea>
+            <div class="row mb-2 comment-list">
+              @foreach($contract->full_comments as $comment)
+              <div class="col-sm-12 mb-2">
+                <textarea name="comment[]" class="form-control" placeholder="">{{$comment}}</textarea>
+              </div>
+              @endforeach
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="addComment()"> + New Comment</button>
           </div>
+
         </div>
 
         <div class="row justify-content-end">

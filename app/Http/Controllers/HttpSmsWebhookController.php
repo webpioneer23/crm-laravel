@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sms;
+use App\Services\HistoryService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +29,7 @@ class HttpSmsWebhookController extends Controller
             $updated_date = [];
 
             if ($type == 'message.phone.received') {
-                Sms::create([
+                $sms = Sms::create([
                     'from_number' => $event['contact'],
                     'to_number' => $event['owner'],
                     'event_id' => $event['message_id'],
@@ -38,6 +39,16 @@ class HttpSmsWebhookController extends Controller
                     'status' => 'received',
                     'sent_at' => date('Y-m-d H:i:s')
                 ]);
+
+                $history = [
+                    'user_id' => 1,
+                    'type' => 'received',
+                    'source' => 'sms',
+                    'source_id' => $sms->id,
+                    'note' => "Content: " . $event['content'] . ", Number: " . $event['contact'],
+                ];
+
+                HistoryService::addRecord($history);
             } else {
                 if ($type == "message.phone.sent") {
                     $sms = Sms::where('event_id', $event['id'])->first();
@@ -51,16 +62,46 @@ class HttpSmsWebhookController extends Controller
                         'status' => 'delivered',
                         'deliveried_at' => date('Y-m-d H:i:s')
                     ];
+
+                    $history = [
+                        'user_id' => 1,
+                        'type' => 'delivered',
+                        'source' => 'sms',
+                        'source_id' => $sms->id,
+                        'note' => "Content: " . $sms->content . ", Number: " . $sms->to_number,
+                    ];
+
+                    HistoryService::addRecord($history);
                 } elseif ($type == 'message.send.failed') {
                     $sms = Sms::where('event_id', $event['id'])->first();
                     $updated_date = [
                         'status' => 'failed',
                     ];
+
+                    $history = [
+                        'user_id' => 1,
+                        'type' => 'failed',
+                        'source' => 'sms',
+                        'source_id' => $sms->id,
+                        'note' => "Content: " . $sms->content . ", Number: " . $sms->to_number,
+                    ];
+
+                    HistoryService::addRecord($history);
                 } elseif ($type == 'message.phone.expired ') {
                     $sms = Sms::where('event_id', $event['message_id'])->first();
                     $updated_date = [
                         'status' => 'expired',
                     ];
+
+                    $history = [
+                        'user_id' => 1,
+                        'type' => 'expired',
+                        'source' => 'sms',
+                        'source_id' => $sms->id,
+                        'note' => "Content: " . $sms->content . ", Number: " . $sms->to_number,
+                    ];
+
+                    HistoryService::addRecord($history);
                 }
 
                 $sms->update($updated_date);

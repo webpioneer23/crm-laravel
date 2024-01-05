@@ -31,8 +31,6 @@
     const tagListEl = document.querySelector('#numbers');
     const contactList = <?php echo json_encode($contacts); ?>;
 
-    console.log("contactList->>", contactList)
-
     const optionList = contactList.map(item => `${item.first_name}(${item.mobile})`)
 
     let tagList = new Tagify(tagListEl, {
@@ -67,7 +65,6 @@
         let chatEle = "";
 
         chats.map(chat => {
-            console.log("chat---", chat)
             if (chat.sender == 1) {
                 let statusIcon = "";
                 if (chat.status == 'sent') {
@@ -135,10 +132,6 @@
         })
 
 
-        console.log({
-            chatEle
-        })
-
         $(".chat-history").html(chatEle);
         messageInput.value = '';
         scrollToUp();
@@ -153,7 +146,6 @@
         let detail = `<i class="ti ti-menu-2 ti-sm cursor-pointer d-lg-none d-block me-2" data-bs-toggle="sidebar" data-overlay data-target="#app-chat-contacts"></i>`;
         if (type === 'contact') {
             const selectedContact = contactList.find(con => con.id == contact);
-            console.log("contact-- json->>>", selectedContact)
             number = selectedContact.mobile;
             let img = "";
             if (selectedContact.photo) {
@@ -204,9 +196,7 @@
             },
             type: 'get',
             success: function(res) {
-                console.log("res-->>", res)
                 displayChatHistory(res.chats)
-
             },
             error: function(err) {
                 console.log({
@@ -221,6 +211,23 @@
     formSendSms.addEventListener('submit', e => {
         e.preventDefault();
 
+        const loadingBtn = `
+            <button class="btn btn-primary" type="button" disabled>
+                <span class="spinner-border me-1" role="status" aria-hidden="true"></span>
+                <i class="ti ti-send me-md-1 me-0"></i>
+                <span class="align-middle d-md-inline-block d-none">Send</span>
+            </button>
+        `;
+
+        const activeBtn = `
+            <button class="btn btn-primary d-flex send-msg-btn">
+                <i class="ti ti-send me-md-1 me-0"></i>
+                <span class="align-middle d-md-inline-block d-none">Send</span>
+            </button>
+        `;
+        $('.form-send-sms .message-actions').html(loadingBtn);
+
+
         const content = messageInput.value;
         const number = $("#selected-number").val();
 
@@ -234,6 +241,7 @@
                 },
                 type: 'post',
                 success: function(res) {
+                    $('.form-send-sms .message-actions').html(activeBtn);
                     if (res.status) {
                         displayChatHistory(res.chats)
                     } else {
@@ -547,6 +555,8 @@
                                 <i class="ti ti-send me-md-1 me-0"></i>
                                 <span class="align-middle d-md-inline-block d-none">Send</span>
                             </button>
+
+
                         </div>
                     </form>
                 </div>

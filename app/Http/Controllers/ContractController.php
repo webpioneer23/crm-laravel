@@ -37,7 +37,8 @@ class ContractController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->except('_token', 'purchasers', 'conditions');
+        $data = $request->except('_token', 'purchasers', 'conditions', 'comment');
+
         // if ($request->comment) {
         //     $data['comment'] = $request->comment . " " . date('Y-m-d H:i:s') . " " . auth()->user()->name;
         // }
@@ -54,11 +55,25 @@ class ContractController extends Controller
         }
         if ($request->conditions) {
             foreach (json_decode($request->conditions) as $condition) {
+                $condition_key = str_replace(" ", "_", $condition->value);
                 TagnameObject::create([
                     'tag_name' => $condition->value,
                     'target_id' => $contract->id,
-                    'type' => 'contract_condition'
+                    'type' => 'contract_condition',
+                    'tag_date' => $request[$condition_key]
                 ]);
+            }
+        }
+
+        if ($request->comment) {
+            foreach ($request->comment as $comment) {
+                if ($comment) {
+                    TagnameObject::create([
+                        'tag_name' => $comment,
+                        'target_id' => $contract->id,
+                        'type' => 'contract_comment'
+                    ]);
+                }
             }
         }
 
@@ -113,7 +128,8 @@ class ContractController extends Controller
      */
     public function update(Request $request, Contract $contract)
     {
-        $data = $request->except('_token', 'purchasers', 'conditions');
+        $data = $request->except('_token', 'purchasers', 'conditions', 'comment');
+
         // if ($request->comment) {
         //     $data['comment'] = $request->comment . " " . date('Y-m-d H:i:s') . " " . auth()->user()->name;
         // }
@@ -122,6 +138,7 @@ class ContractController extends Controller
         ContractContact::where([
             'contract_id' => $contract->id,
         ])->delete();
+
         if ($request->purchasers) {
             foreach ($request->purchasers as $purchaser) {
                 ContractContact::create([
@@ -137,11 +154,29 @@ class ContractController extends Controller
         ])->delete();
         if ($request->conditions) {
             foreach (json_decode($request->conditions) as $condition) {
+                $condition_key = str_replace(" ", "_", $condition->value);
                 TagnameObject::create([
                     'tag_name' => $condition->value,
                     'target_id' => $contract->id,
-                    'type' => 'contract_condition'
+                    'type' => 'contract_condition',
+                    'tag_date' => $request[$condition_key]
                 ]);
+            }
+        }
+
+        TagnameObject::where([
+            'target_id' => $contract->id,
+            'type' => 'contract_comment'
+        ])->delete();
+        if ($request->comment) {
+            foreach ($request->comment as $comment) {
+                if ($comment) {
+                    TagnameObject::create([
+                        'tag_name' => $comment,
+                        'target_id' => $contract->id,
+                        'type' => 'contract_comment'
+                    ]);
+                }
             }
         }
 

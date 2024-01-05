@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use App\Models\Sms;
+use App\Services\HistoryService;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 
@@ -112,7 +113,17 @@ class SmsController extends Controller
                     }
 
                     if ($phone_number) {
-                        SmsService::sendSMS($phone_number, $content);
+                        $sms = SmsService::sendSMS($phone_number, $content);
+
+                        $history = [
+                            'user_id' => auth()->user()->id,
+                            'type' => 'sent',
+                            'source' => 'sms',
+                            'source_id' => $sms->id,
+                            'note' => "Content: $content, Number: $number",
+                        ];
+
+                        HistoryService::addRecord($history);
                     }
                 }
             }
@@ -158,7 +169,19 @@ class SmsController extends Controller
         try {
             $number = $request->number;
             $content = $request->content;
-            SmsService::sendSMS($number, $content);
+            $sms = SmsService::sendSMS($number, $content);
+
+            $history = [
+                'user_id' => auth()->user()->id,
+                'type' => 'sent',
+                'source' => 'sms',
+                'source_id' => $sms->id,
+                'note' => "Content: $content, Number: $number",
+            ];
+
+            HistoryService::addRecord($history);
+
+
             $chats = Sms::where('from_number', $number)
                 ->orWhere('to_number', $number)
                 ->orderBy('created_at')

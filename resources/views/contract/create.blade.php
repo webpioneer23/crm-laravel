@@ -45,6 +45,34 @@
       closeOnSelect: false
     }
   });
+
+
+  // auto add comment
+  function addComment() {
+    $(".comment-list").append(`
+      <div class="col-sm-12 mb-2">
+        <textarea name="comment[]" class="form-control" placeholder=""></textarea>
+      </div>
+    `)
+  }
+
+  function handleConditions() {
+    const jsonConditions = $("#conditions").val();
+    if (jsonConditions) {
+      const conditions = JSON.parse(jsonConditions);
+      const conditionListEle = conditions.map(con => `
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label" for="deposit_due_date">${con.value} Date</label>
+          <div class="col-sm-10">
+            <input type="date" name="${con.value}" class="form-control" placeholder="${con.value} Date" />
+          </div>
+        </div>
+      `);
+
+      $(".conditions-date").html(conditionListEle)
+
+    }
+  }
 </script>
 
 @endsection
@@ -117,9 +145,14 @@
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="basic-default-name">Conditions</label>
           <div class="col-sm-10">
-            <input id="conditions" name="conditions" class="form-control" placeholder="Select Conditions">
+            <input id="conditions" name="conditions" class="form-control" placeholder="Select Conditions" onchange="handleConditions()">
           </div>
         </div>
+
+        <div class="conditions-date">
+
+        </div>
+
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="deposit_due_date">Deposit Due Date</label>
           <div class="col-sm-10">
@@ -154,9 +187,18 @@
 
         <div class="row mb-3">
           <label class="col-sm-2 col-form-label" for="comment">Comment</label>
+
           <div class="col-sm-10">
-            <textarea name="comment" class="form-control" placeholder=""></textarea>
+            <div class="row mb-2 comment-list">
+              <div class="col-sm-12 mb-2">
+                <textarea name="comment[]" class="form-control" placeholder=""></textarea>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="addComment()"> + New Comment</button>
+
           </div>
+
         </div>
 
         <div class="row justify-content-end">
