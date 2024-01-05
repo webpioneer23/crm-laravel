@@ -14,5 +14,6 @@ class TagnameObject extends Model
         'tag_name',
         'target_id',
         'type',
+        'tag_date'
     ];
 }

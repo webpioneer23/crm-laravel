@@ -29,7 +29,7 @@ class SmsService
         $event = $res_body->data;
         \Log::info("Event id--");
         \Log::info($event->id);
-        Sms::create([
+        $sms = Sms::create([
             'from_number' => $from_number,
             'to_number' => $number,
             'event_id' => $event->id,
@@ -39,6 +39,6 @@ class SmsService
             'status' => 'pending'
         ]);
 
-        return $res_body;
+        return $sms;
     }
 }

@@ -30,12 +30,21 @@ class Contract extends Model
 
     public function getFullConditionsAttribute()
     {
-        $tag_lists = TagnameObject::where(['target_id' => $this->id, 'type' => 'contract_condition'])->get();
-        $conditions = [];
+        return TagnameObject::where(['target_id' => $this->id, 'type' => 'contract_condition'])->get();
+        // $conditions = [];
+        // foreach ($tag_lists as $tag_list) {
+        //     array_push($conditions, $tag_list->tag_name);
+        // }
+        // return $conditions;
+    }
+    public function getFullCommentsAttribute()
+    {
+        $tag_lists = TagnameObject::where(['target_id' => $this->id, 'type' => 'contract_comment'])->get();
+        $comments = [];
         foreach ($tag_lists as $tag_list) {
-            array_push($conditions, $tag_list->tag_name);
+            array_push($comments, $tag_list->tag_name);
         }
-        return $conditions;
+        return $comments;
     }
 
     public function getFilesAttribute()
