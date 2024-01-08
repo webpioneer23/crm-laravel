@@ -115,6 +115,10 @@ class Listing extends Model
         $address = Address::find($this->address_id);
         return $address;
     }
+    public function vendor()
+    {
+        return $this->belongsTo(Contact::class, 'contact_id');
+    }
 
     public function getVendorAttribute()
     {

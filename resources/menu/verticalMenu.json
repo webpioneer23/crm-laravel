@@ -41,6 +41,23 @@
       ]
     },
     {
+      "name": "Leads",
+      "icon": "menu-icon tf-icons ti ti-filter",
+      "slug": "lead",
+      "submenu": [
+        {
+          "url": "lead",
+          "name": "List",
+          "slug": "lead.index"
+        },
+        {
+          "url": "lead/create",
+          "name": "Create",
+          "slug": "lead.create"
+        }
+      ]
+    },
+    {
       "name": "Appraisals",
       "icon": "menu-icon tf-icons ti ti-home-edit",
       "slug": "appraisal",
