@@ -190,7 +190,6 @@
 
         $.ajax({
             url: "{{route('sms.history')}}",
-            type: 'get',
             data: {
                 number
             },

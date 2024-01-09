@@ -167,6 +167,7 @@ use App\Http\Controllers\maps\Leaflet;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\TagController;
 
@@ -405,4 +406,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/sms', SmsController::class);
     Route::post('/sms/single-send', [SmsController::class, 'sendSingleSMS'])->name('single.sms');
     Route::get('sms-chat-history', [SmsController::class, 'getChatsByNumber'])->name('sms.history');
+
+    Route::resource('/lead', LeadController::class);
+    Route::get('/associate-address', [LeadController::class, 'associate_address'])->name("associate.address");
 });
