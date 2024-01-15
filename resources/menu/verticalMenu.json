@@ -92,6 +92,23 @@
       ]
     },
     {
+      "name": "Listings Portal",
+      "icon": "menu-icon tf-icons ti ti-brand-openai",
+      "slug": "listingPortal",
+      "submenu": [
+        {
+          "url": "listingPortal",
+          "name": "List",
+          "slug": "listingPortal.index"
+        },
+        {
+          "url": "listingPortal/create",
+          "name": "Create",
+          "slug": "listingPortal.create"
+        }
+      ]
+    },
+    {
       "name": "Contracts",
       "icon": "menu-icon tf-icons ti ti-file-dollar",
       "slug": "contract",

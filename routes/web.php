@@ -168,6 +168,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\ListingPortalController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\TagController;
 
@@ -373,6 +374,8 @@ Auth::routes();
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('/listing-suburbs-load', [ListingController::class, "load_suburbs"])->name('listing.load_suburbs');
+
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', [Analytics::class, 'index'])->name('home');
 
@@ -396,7 +399,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/complex-wishlist/{id}/update/{wishlist_id}', [ComplexController::class, 'wishlist_update'])->name('complex.wishlist.update');
     Route::delete('/complex-wishlist/{wishlist_id}', [ComplexController::class, 'wishlist_delete'])->name('complex.wishlist.destroy');
 
+    Route::resource('/listingPortal', ListingPortalController::class);
+    Route::post('/portal-status', [ListingPortalController::class, 'update_status'])->name('portal-status');
+
     Route::resource('/listing', ListingController::class);
+    Route::post('/listing-publish', [ListingController::class, "publish"])->name('listing.publish');
+    Route::put('/listing-publish', [ListingController::class, "re_publish"])->name('listing.update.publish');
 
     Route::resource('/contract', ContractController::class);
     Route::get('/contract/{id}/files', [ContractController::class, 'files'])->name('contract.files');
