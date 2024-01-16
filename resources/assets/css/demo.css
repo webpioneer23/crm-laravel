@@ -144,3 +144,9 @@
   right: 0;
   width: 800px !important;
 }
+
+.capitalize,
+.capitalize .select2-dropdown.select2-dropdown--below,
+.capitalize .select2-selection__rendered {
+  text-transform: capitalize;
+}

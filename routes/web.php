@@ -405,6 +405,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/listing', ListingController::class);
     Route::post('/listing-publish', [ListingController::class, "publish"])->name('listing.publish');
     Route::put('/listing-publish', [ListingController::class, "re_publish"])->name('listing.update.publish');
+    Route::delete('/delete-listing-publish', [ListingController::class, "delete_publish"])->name('listing.delete.publish');
 
     Route::resource('/contract', ContractController::class);
     Route::get('/contract/{id}/files', [ContractController::class, 'files'])->name('contract.files');

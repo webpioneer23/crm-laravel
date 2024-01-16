@@ -42,9 +42,9 @@ class RealEstateService
 
         $listing_attr = [
             // "listing-no" => "TG01217",
-            "listing-no" => "AABRON$listing->id",
+            "listing-no" => "AACRON$listing->id",
             "date-of-last-change" => Carbon::now('Pacific/Auckland')->format('Y-m-d\TH:i:sP'),
-            "listing-status" => "active",
+            "listing-status" => $listing->status,
             "listing-category-code" => "res_sale", // inject
             "listing-property-type-code" => "RESHOU", // inject
             "address" => [

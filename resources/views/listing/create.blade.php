@@ -56,15 +56,15 @@
               <h5 class="mb-0">Change Status</h5>
             </div>
             <div class="row g-3 mb-3">
-              <div class="col-sm-6">
+              <div class="col-sm-6 capitalize">
                 <label class="form-label" for="status">Status</label>
+                <?php
+                $status_list = ["draft", "active", "withdrawn", "sold", "under offer", "off market"];
+                ?>
                 <select name="status" class="select2 form-select" id="status">
-                  <option value="Draft">Draft</option>
-                  <option value="Active">Active</option>
-                  <option value="Off Market">Off Market</option>
-                  <option value="Withdrawn">Withdrawn</option>
-                  <option value="Sold">Sold</option>
-                  <option value="Under Offer">Under Offer</option>
+                  @foreach($status_list as $status_item)
+                  <option value="{{$status_item}}">{{$status_item}}</option>
+                  @endforeach
                 </select>
               </div>
               <div class="col-sm-6">

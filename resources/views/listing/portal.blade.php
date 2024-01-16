@@ -1,5 +1,8 @@
 <div class="card-body">
   <div class="table-responsive text-nowrap">
+    <?php
+    $available_status = ["active", "sold", "withdrawn"];
+    ?>
     <table class="table">
       <thead>
         <tr>
@@ -16,12 +19,14 @@
           <td>
             {{$portal->name}}
           </td>
-          <td>
+          <td class="capitalize">
             @if(isset($listing->published_list["portal-$portal->id"]))
             {{$listing->published_list["portal-$portal->id"][0]}}
             @endif
           </td>
           <td class="d-flex">
+            @if(in_array($listing->status, $available_status))
+
             @if(isset($listing->published_list["portal-$portal->id"]) && !$listing->published_list["portal-$portal->id"][1])
             <form method="POST" action="{{route('listing.publish')}}" class="ms-4">
               @csrf
@@ -43,13 +48,18 @@
                 <span class="ti ti-logout me-1"></span>Push Again
               </button>
             </form>
-            <form method="POST" action="" class="ms-4">
+            <form method="POST" action="{{route('listing.delete.publish')}}" class="ms-4">
               @csrf
               @method('DELETE')
+              <input type="hidden" name="listing_id" value="{{$listing->id}}">
+              <input type="hidden" name="portal_id" value="{{$portal->id}}">
+
               <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?')">
                 <span class="ti ti-trash me-1"></span>Remove from Portal
               </button>
             </form>
+            @endif
+
             @endif
           </td>
         </tr>

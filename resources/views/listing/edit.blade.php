@@ -136,10 +136,10 @@
               <h5 class="mb-0">Change Status</h5>
             </div>
             <div class="row g-3 mb-3">
-              <div class="col-sm-6">
+              <div class="col-sm-6 capitalize">
                 <label class="form-label" for="status">Status</label>
                 <?php
-                $status_list = ["Draft", "Active", "Off Market", "Withdrawn", "Sold", "Under Offer"];
+                $status_list = ["draft", "active", "withdrawn", "sold", "under offer", "off market"];
                 ?>
                 <select name="status" class="select2 form-select" id="status">
                   @foreach($status_list as $status_item)
