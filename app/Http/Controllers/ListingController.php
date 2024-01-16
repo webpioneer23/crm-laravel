@@ -284,6 +284,11 @@ class ListingController extends Controller
             $portal = ListingPortal::find($portal_id);
             $listing = Listing::find($listing_id);
 
+            $available_status = ["active", "sold", "withdrawn"];
+            if (!in_array($listing->status, $available_status)) {
+                return back()->with(["error" => "This listing hasn't available status."]);
+            }
+
             $base_url = $portal->base_url;
 
             $listing_portal_map = ListingPortalMap::where([
@@ -391,6 +396,7 @@ class ListingController extends Controller
             $portal = ListingPortal::find($portal_id);
             $listing = Listing::find($listing_id);
 
+
             $base_url = $portal->base_url;
 
             $listing_portal_map = ListingPortalMap::where([
@@ -481,6 +487,112 @@ class ListingController extends Controller
                 HistoryService::addRecord($history_result);
             }
             return back()->with(['success' => "The listing has been successfully repushed!"]);
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
+
+    public function delete_publish(Request $request)
+    {
+        try {
+            $portal_id = $request->portal_id;
+            $listing_id = $request->listing_id;
+            $portal = ListingPortal::find($portal_id);
+            $listing = Listing::find($listing_id);
+
+            $listing->status = "withdrawn";
+            $listing->save();
+
+            $base_url = $portal->base_url;
+
+            $listing_portal_map = ListingPortalMap::where([
+                'listing_id' => $listing_id,
+                'portal_id' => $portal_id,
+            ])->first();
+
+            if (!$base_url) {
+                return back()->with(["error" => "The base url for this portal has not been set."]);
+            }
+
+            if ($base_url == 'https://sandbox.realestate.co.nz') {
+
+                $key = $portal->key;
+                if (!$key) {
+                    return back()->with(["error" => "The key for this portal has not been set."]);
+                }
+                $office_id = $portal->office_id;
+                if (!$office_id) {
+                    return back()->with(["error" => "The office_id for this portal has not been set."]);
+                }
+
+                $listing_request = RealEstateService::parsePostListing($listing, $office_id, true, $listing_portal_map->push_id);
+
+                $data = [
+                    'key' => $key,
+                    'request_data' => $listing_request,
+                ];
+
+                $listing_portal_map->update([
+                    'status' => 'pending'
+                ]);
+
+                $history = [
+                    'user_id' => auth()->user()->id,
+                    'type' => 'withdrew',
+                    'source' => 'listingPortal',
+                    'source_id' => $listing->id,
+                    "note" => json_encode([
+                        "listing_id" => $listing_id,
+                        "portal_id" => $portal_id,
+                        "status" => "Pending"
+                    ]),
+                    "note_json" => true
+                ];
+
+                HistoryService::addRecord($history);
+
+                $publish_result = RealEstateService::postData("$base_url/feed/v1/listings/$listing_portal_map->push_id", $data, false);
+                $history_result = [];
+                if (!$publish_result['status']) {
+                    $listing_portal_map->update([
+                        'status' => 'failed'
+                    ]);
+
+                    $history_result = [
+                        'user_id' => auth()->user()->id,
+                        'type' => 'withdrew',
+                        'source' => 'listingPortal',
+                        'source_id' => $listing->id,
+                        "note" => json_encode([
+                            "listing_id" => $listing_id,
+                            "portal_id" => $portal_id,
+                            "status" => "Failed"
+                        ]),
+                        "note_json" => true
+                    ];
+                    return back()->with(["error" => "Something went wrong!"]);
+                } else {
+                    $listing_portal_map->update([
+                        'status' => 're-published',
+                    ]);
+
+                    $history_result = [
+                        'user_id' => auth()->user()->id,
+                        'type' => 'withdrew',
+                        'source' => 'listingPortal',
+                        'source_id' => $listing->id,
+                        "note" => json_encode([
+                            "listing_id" => $listing_id,
+                            "portal_id" => $portal_id,
+                            "status" => "Success",
+                        ]),
+                        "note_json" => true
+                    ];
+                }
+
+                HistoryService::addRecord($history_result);
+            }
+            return back()->with(['success' => "The listing has been successfully deleted from portal!"]);
         } catch (Exception $e) {
             return $e;
         }
