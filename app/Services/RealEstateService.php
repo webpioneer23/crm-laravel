@@ -9,6 +9,7 @@ use App\Models\ListingSuburb;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\URL;
 
 class RealEstateService
 {
@@ -26,7 +27,7 @@ class RealEstateService
         foreach ($floorplans_obs as $floorplans_ob) {
             if ($floorplans_ob->path) {
                 array_push($floorplans, [
-                    "url" => public_path($floorplans_ob->path),
+                    "url" => URL::asset('uploads/' . $floorplans_ob->path),
                     "order" => $floorplans_ob->priority == 0 ? 1 : $floorplans_ob->priority,
                 ]);
             }
