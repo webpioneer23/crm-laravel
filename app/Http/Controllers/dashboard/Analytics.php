@@ -11,6 +11,7 @@ class Analytics extends Controller
 {
   public function index()
   {
+    return public_path("files/X3BYjItXk6KMCXKyQkbLaHkpBwZB5RrOUgpjGXBy.doc");
     $listing_count = Listing::count();
     $listing_price = Listing::sum('price');
     $contracts_count = Contract::count();
