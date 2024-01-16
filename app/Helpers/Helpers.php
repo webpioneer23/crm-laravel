@@ -195,4 +195,15 @@ class Helpers
     $result = implode(' ', $capitalizedWords);
     return $result;
   }
+
+  public static function amountFormat($amount)
+  {
+    if ($amount >= 1000000) {
+      return number_format($amount / 1000000, 2) . 'M';
+    } elseif ($amount >= 1000) {
+      return number_format($amount / 1000, 2) . 'k';
+    } else {
+      return $amount;
+    }
+  }
 }

@@ -81,6 +81,9 @@ class Listing extends Model
         'inspection_booking_setting',
         'inspection_user',
 
+
+        'published'
+
     ];
 
 
@@ -140,5 +143,28 @@ class Listing extends Model
             ]);
         }
         return $obs;
+    }
+
+    public function portal_ids()
+    {
+        $ids = ListingPortalMap::where('listing_id', $this->id)->pluck('portal_id')->toArray();
+        return $ids;
+    }
+
+    public function portals()
+    {
+        $ids = ListingPortalMap::where('listing_id', $this->id)->pluck('portal_id');
+        $portals = ListingPortal::whereIn('id', $ids)->get();
+        return $portals;
+    }
+
+    public function getPublishedListAttribute()
+    {
+        $listing_portals = ListingPortalMap::where('listing_id', $this->id)->get();
+        $published = [];
+        foreach ($listing_portals as $key => $listing_portal) {
+            $published["portal-$listing_portal->portal_id"] = [$listing_portal->status, $listing_portal->push_id];
+        }
+        return $published;
     }
 }

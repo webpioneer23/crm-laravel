@@ -7,9 +7,15 @@ use App\Models\AFile;
 use App\Models\Contact;
 use App\Models\Listing;
 use App\Models\ListingInspection;
+use App\Models\ListingPortal;
+use App\Models\ListingPortalMap;
+use App\Models\ListingSuburb;
 use App\Models\ListingTag;
 use App\Models\Tag;
 use App\Services\HistoryService;
+use App\Services\RealEstateService;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 
 class ListingController extends Controller
@@ -28,9 +34,10 @@ class ListingController extends Controller
      */
     public function create()
     {
+        $portals = ListingPortal::where('active', 1)->get();
         $contacts = Contact::all();
         $addresses = Address::all();
-        return view('listing.create', compact('contacts', 'addresses'));
+        return view('listing.create', compact('contacts', 'addresses', 'portals'));
     }
 
     /**
@@ -45,6 +52,15 @@ class ListingController extends Controller
             $data['featured_property'] = 0;
         }
         $listing = Listing::create($data);
+
+        if ($request->portal) {
+            foreach ($request->portal as $key => $portal) {
+                ListingPortalMap::create([
+                    'listing_id' => $listing->id,
+                    'portal_id' => $portal,
+                ]);
+            }
+        }
 
         $history = [
             'user_id' => auth()->user()->id,
@@ -76,7 +92,9 @@ class ListingController extends Controller
         $contacts = Contact::all();
         $addresses = Address::all();
         $tags = Tag::all();
-        return view('listing.edit', compact('contacts', 'addresses', 'listing', 'tags'));
+
+        $portals = ListingPortal::where('active', 1)->get();
+        return view('listing.edit', compact('contacts', 'addresses', 'listing', 'tags', 'portals'));
     }
 
     /**
@@ -103,11 +121,19 @@ class ListingController extends Controller
             } else {
                 $data['featured_property'] = 0;
             }
+            $data['step'] = max($listing->step, $data['step']);
             $listing->update($data);
-        }
 
-
-        if ($data['step'] == 3) {
+            ListingPortalMap::where('listing_id', $listing->id)->delete();
+            if ($request->portal) {
+                foreach ($request->portal as $key => $portal) {
+                    ListingPortalMap::create([
+                        'listing_id' => $listing->id,
+                        'portal_id' => $portal,
+                    ]);
+                }
+            }
+        } elseif ($data['step'] == 3) {
             if (isset($data['outdoor_features'])) {
                 $data['outdoor_features'] = json_encode($data['outdoor_features']);
             }
@@ -120,6 +146,8 @@ class ListingController extends Controller
             if (isset($data['eco_friendly_features'])) {
                 $data['eco_friendly_features'] = json_encode($data['eco_friendly_features']);
             }
+            $data['step'] = max($listing->step, $data['step']);
+
 
             $listing->update($data);
             ListingTag::where('listing_id', $listing->id)->delete();
@@ -131,9 +159,9 @@ class ListingController extends Controller
                     ]);
                 }
             }
-        }
+        } elseif ($data['step'] == 4) {
+            $data['step'] = max($listing->step, $data['step']);
 
-        if ($data['step'] == 4) {
             $listing->update($data);
 
             $img_order_ids = explode(',', $data['img_order']);
@@ -212,9 +240,7 @@ class ListingController extends Controller
                     ]);
                 }
             }
-        }
-
-        if ($data['step'] == 5) {
+        } elseif ($data['step'] == 5) {
             $data = $request['group-a'];
             ListingInspection::where([
                 'listing_id' => $listing->id
@@ -223,9 +249,10 @@ class ListingController extends Controller
                 $item['listing_id'] = $listing->id;
                 ListingInspection::create($item);
             }
-            return redirect()->route('listing.index');
+            $listing->update([
+                'step' => 5
+            ]);
         }
-
 
         return redirect()->route('listing.edit', $listing->id);
     }
@@ -242,11 +269,243 @@ class ListingController extends Controller
             'type' => 'deleted',
             'source' => 'listing',
             'source_id' => $listing->id,
-            // 'note' => $contact->first_name . " " . $contact->last_name,
         ];
 
         HistoryService::addRecord($history);
 
         return back();
+    }
+
+    public function publish(Request $request)
+    {
+        try {
+            $portal_id = $request->portal_id;
+            $listing_id = $request->listing_id;
+            $portal = ListingPortal::find($portal_id);
+            $listing = Listing::find($listing_id);
+
+            $base_url = $portal->base_url;
+
+            $listing_portal_map = ListingPortalMap::where([
+                'listing_id' => $listing_id,
+                'portal_id' => $portal_id,
+            ])->first();
+
+            if (!$base_url) {
+                return back()->with(["error" => "The base url for this portal has not been set."]);
+            }
+
+            if ($base_url == 'https://sandbox.realestate.co.nz') {
+
+                $key = $portal->key;
+                if (!$key) {
+                    return back()->with(["error" => "The key for this portal has not been set."]);
+                }
+                $office_id = $portal->office_id;
+                if (!$office_id) {
+                    return back()->with(["error" => "The office_id for this portal has not been set."]);
+                }
+
+                $listing_request = RealEstateService::parsePostListing($listing, $office_id);
+
+                $data = [
+                    'key' => $key,
+                    'request_data' => $listing_request,
+                ];
+
+                $listing_portal_map->update([
+                    'status' => 'pending'
+                ]);
+
+                $history = [
+                    'user_id' => auth()->user()->id,
+                    'type' => 'pushed',
+                    'source' => 'listingPortal',
+                    'source_id' => $listing->id,
+                    "note" => json_encode([
+                        "listing_id" => $listing_id,
+                        "portal_id" => $portal_id,
+                        "status" => "Pending"
+                    ]),
+                    "note_json" => true
+                ];
+
+                HistoryService::addRecord($history);
+
+                $publish_result = RealEstateService::postData("$base_url/feed/v1/listings", $data);
+
+                $history_result = [];
+                if (!$publish_result['status']) {
+                    $listing_portal_map->update([
+                        'status' => 'failed'
+                    ]);
+
+                    $history_result = [
+                        'user_id' => auth()->user()->id,
+                        'type' => 'pushed',
+                        'source' => 'listingPortal',
+                        'source_id' => $listing->id,
+                        "note" => json_encode([
+                            "listing_id" => $listing_id,
+                            "portal_id" => $portal_id,
+                            "status" => "Failed"
+                        ]),
+                        "note_json" => true
+                    ];
+                    return back()->with(["error" => "Something went wrong!"]);
+                } else {
+                    $push_data = json_decode($publish_result['data'], true);
+                    $listing_portal_map->update([
+                        'status' => 'published',
+                        'push_id' => $push_data['data'][0]['id']
+                    ]);
+
+                    $history_result = [
+                        'user_id' => auth()->user()->id,
+                        'type' => 'pushed',
+                        'source' => 'listingPortal',
+                        'source_id' => $listing->id,
+                        "note" => json_encode([
+                            "listing_id" => $listing_id,
+                            "portal_id" => $portal_id,
+                            "status" => "Success",
+                            'pushed_id' => $push_data['data'][0]['id'],
+                        ]),
+                        "note_json" => true
+                    ];
+                }
+
+                HistoryService::addRecord($history_result);
+            }
+            return back()->with(['success' => "The listing has been successfully pushed!"]);
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
+
+    public function re_publish(Request $request)
+    {
+        try {
+            $portal_id = $request->portal_id;
+            $listing_id = $request->listing_id;
+            $portal = ListingPortal::find($portal_id);
+            $listing = Listing::find($listing_id);
+
+            $base_url = $portal->base_url;
+
+            $listing_portal_map = ListingPortalMap::where([
+                'listing_id' => $listing_id,
+                'portal_id' => $portal_id,
+            ])->first();
+
+            if (!$base_url) {
+                return back()->with(["error" => "The base url for this portal has not been set."]);
+            }
+
+            if ($base_url == 'https://sandbox.realestate.co.nz') {
+
+                $key = $portal->key;
+                if (!$key) {
+                    return back()->with(["error" => "The key for this portal has not been set."]);
+                }
+                $office_id = $portal->office_id;
+                if (!$office_id) {
+                    return back()->with(["error" => "The office_id for this portal has not been set."]);
+                }
+
+                $listing_request = RealEstateService::parsePostListing($listing, $office_id, true, $listing_portal_map->push_id);
+
+                $data = [
+                    'key' => $key,
+                    'request_data' => $listing_request,
+                ];
+
+                $listing_portal_map->update([
+                    'status' => 'pending'
+                ]);
+
+                $history = [
+                    'user_id' => auth()->user()->id,
+                    'type' => 're-pushed',
+                    'source' => 'listingPortal',
+                    'source_id' => $listing->id,
+                    "note" => json_encode([
+                        "listing_id" => $listing_id,
+                        "portal_id" => $portal_id,
+                        "status" => "Pending"
+                    ]),
+                    "note_json" => true
+                ];
+
+                HistoryService::addRecord($history);
+
+                $publish_result = RealEstateService::postData("$base_url/feed/v1/listings/$listing_portal_map->push_id", $data, false);
+                $history_result = [];
+                if (!$publish_result['status']) {
+                    $listing_portal_map->update([
+                        'status' => 'failed'
+                    ]);
+
+                    $history_result = [
+                        'user_id' => auth()->user()->id,
+                        'type' => 're-pushed',
+                        'source' => 'listingPortal',
+                        'source_id' => $listing->id,
+                        "note" => json_encode([
+                            "listing_id" => $listing_id,
+                            "portal_id" => $portal_id,
+                            "status" => "Failed"
+                        ]),
+                        "note_json" => true
+                    ];
+                    return back()->with(["error" => "Something went wrong!"]);
+                } else {
+                    $listing_portal_map->update([
+                        'status' => 're-published',
+                    ]);
+
+                    $history_result = [
+                        'user_id' => auth()->user()->id,
+                        'type' => 're-pushed',
+                        'source' => 'listingPortal',
+                        'source_id' => $listing->id,
+                        "note" => json_encode([
+                            "listing_id" => $listing_id,
+                            "portal_id" => $portal_id,
+                            "status" => "Success",
+                        ]),
+                        "note_json" => true
+                    ];
+                }
+
+                HistoryService::addRecord($history_result);
+            }
+            return back()->with(['success' => "The listing has been successfully repushed!"]);
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
+
+    public function load_suburbs(Request $request)
+    {
+        $portal = ListingPortal::where('base_url', 'https://sandbox.realestate.co.nz')->first();
+
+        $base_url = $portal->base_url;
+
+        $publish_result = RealEstateService::getData("$base_url/feed/v1/suburbs");
+        $listing_suburbs = $publish_result->data;
+        foreach ($listing_suburbs as $suburb) {
+            ListingSuburb::create([
+                'suburb_id' => $suburb->id,
+                'suburb_fq_slug' => $suburb->attributes->{'suburb-fq-slug'},
+                'display_suburb_name' => $suburb->attributes->{'display-suburb-name'},
+                'sdnid' => $suburb->attributes->sdnid,
+                'dynamic_index' => $suburb->attributes->{'dynamic-index'},
+                'suburb_name' => $suburb->attributes->{'suburb-name'},
+                'district_name' => $suburb->attributes->{'district-name'},
+                'region_name' => $suburb->attributes->{'region-name'},
+            ]);
+        }
+        return 'success';
     }
 }

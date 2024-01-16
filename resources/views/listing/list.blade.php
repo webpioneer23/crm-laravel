@@ -2,6 +2,8 @@
 
 @section('title', 'Tables - Basic Tables')
 
+
+
 @section('content')
 <h4 class="py-3 mb-4">
   <span class="text-muted fw-light">Listing /</span> List
@@ -12,20 +14,25 @@
   <div class="card-header right">
     <a href="{{route('listing.create')}}" class="btn btn-primary">New Listing</a>
   </div>
+
   <div class="card-body">
 
     <div class="table-responsive text-nowrap">
       <table class="table">
         <thead>
           <tr>
+            <th></th>
             <th>Address</th>
             <th>Vendor</th>
             <th></th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
-          @foreach($list as $item)
+          @foreach($list as $key => $item)
           <tr>
+            <td>
+              {{$key + 1}}
+            </td>
             <td>
               {{$item->address?->unit_number ? $item->address->unit_number."/" : ""}}{{$item->address->street}}, {{$item->address->city}}
             </td>
@@ -60,6 +67,32 @@
     if (userConfirmed) {
       document.getElementById(itemId).submit();
     }
+  }
+
+  let itemList = [];
+
+  function selectItem() {
+    const itemList = [];
+    const checkBoxs = $(".dt-checkboxes");
+    for (let index = 0; index < checkBoxs.length; index++) {
+      const checkBox = checkBoxs[index];
+      const checked = $(checkBox).is(':checked');
+      const itemId = $(checkBox).data('id');
+      if (checked) {
+        itemList.push(itemId);
+      }
+    }
+    $("#ids").val(itemList)
+  }
+
+  function publish() {
+    const itemList = $("#ids").val();
+    if (!itemList) {
+      alert("Please selest at least one item");
+      return;
+    }
+    alert("This feature is under review. Coming soon!")
+    // $("#publish-form").submit();
   }
 </script>
 @endsection

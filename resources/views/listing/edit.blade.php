@@ -104,12 +104,15 @@
 
 <!-- Tabs -->
 <div class="row">
+
+
   <div class="col-xl-12">
     <div class="nav-align-top mb-4">
       <ul class="nav nav-pills mb-3" role="tablist">
         <li class="nav-item">
           <button type="button" class="nav-link {{$listing->step == 1 ? 'active' : ''}}" role="tab" data-bs-toggle="tab" data-bs-target="#listing-detail" aria-controls="listing-detail" aria-selected="true">Listing Details</button>
         </li>
+
         <li class="nav-item">
           <button type="button" class="nav-link {{$listing->step == 2 ? 'active' : ''}}" role="tab" data-bs-toggle="tab" data-bs-target="#property-details" aria-controls="property-details" aria-selected="false">Property Details</button>
         </li>
@@ -118,6 +121,9 @@
         </li>
         <li class="nav-item">
           <button type="button" class="nav-link {{$listing->step == 4 ? 'active' : ''}}" role="tab" data-bs-toggle="tab" data-bs-target="#inspections" aria-controls="inspections" aria-selected="false">Inspections</button>
+        </li>
+        <li class="nav-item">
+          <button type="button" class="nav-link {{$listing->step == 5 ? 'active' : ''}}" role="tab" data-bs-toggle="tab" data-bs-target="#portal" aria-controls="portal" aria-selected="false">Portal</button>
         </li>
       </ul>
       <div class="tab-content">
@@ -336,6 +342,29 @@
                 <label class="form-label" for="rent_appraisal">Rent Appraisal</label>
                 <input name="rent_appraisal" class="form-control" type="text" id="rent_appraisal" value="{{$listing->rent_appraisal}}" />
               </div>
+
+
+              <?php
+              $portal_ids = $listing->portal_ids();
+              ?>
+
+              <div class="col-sm-6">
+                <div class="small fw-medium mb-3">Available Portals</div>
+                @foreach($portals as $key => $portal)
+                <div class="mb-2">
+                  <label class="switch">
+                    <input type="checkbox" class="switch-input" name="portal[]" value="{{$portal->id}}" {{in_array($portal->id, $portal_ids) ? 'checked' : ''}} />
+                    <span class="switch-toggle-slider">
+                      <span class="switch-on"></span>
+                      <span class="switch-off"></span>
+                    </span>
+                    <span class="switch-label">{{$portal->name}}</span>
+                  </label>
+                </div>
+                @endforeach
+              </div>
+
+
               <div class="col-12 text-end">
                 <!-- <div class="col-12 d-flex justify-content-between text-end"> -->
                 <!-- <button class="btn btn-label-secondary btn-prev" disabled> <i class="ti ti-arrow-left me-sm-1 me-0"></i>
@@ -354,6 +383,9 @@
         </div>
         <div class="tab-pane fade {{$listing->step == 4 ? 'show active' : '' }}" id="inspections" role="tabpanel">
           @include('listing.inspections')
+        </div>
+        <div class="tab-pane fade {{$listing->step == 5 ? 'show active' : '' }}" id="portal" role="tabpanel">
+          @include('listing.portal')
         </div>
       </div>
     </div>

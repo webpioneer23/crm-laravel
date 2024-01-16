@@ -79,9 +79,9 @@
         // Create the autocomplete object, restricting the search predictions to
         // addresses in the US and Canada.
         autocomplete = new google.maps.places.Autocomplete(address1Field, {
-            // componentRestrictions: {
-            //   country: ["us", "ca"]
-            // },
+            componentRestrictions: {
+                country: ["nz"]
+            },
             fields: ["address_components", "geometry"],
             types: ["address"],
         });
@@ -99,6 +99,11 @@
 
     function fillInAddress() {
 
+        document.querySelector("#locality").value = "";
+        document.querySelector("#suburb").value = "";
+        document.querySelector("#unit_number").value = "";
+        document.querySelector("#street").value = "";
+
         // Get the place details from the autocomplete object.
         const place = autocomplete.getPlace();
         let address1 = "";
@@ -112,6 +117,9 @@
         for (const component of place.address_components) {
             // @ts-ignore remove once typings fixed
             const componentType = component.types[0];
+            console.log({
+                component
+            })
 
             switch (componentType) {
                 case "street_number": {

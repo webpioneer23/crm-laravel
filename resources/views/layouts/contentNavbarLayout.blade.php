@@ -43,6 +43,36 @@ $container = (isset($configData['contentLayout']) && $configData['contentLayout'
     <!-- Layout page -->
     <div class="layout-page">
 
+      @if(session('error'))
+      <div class="container-xxl container-p-y pb-0 mb-0">
+        <div class="row">
+          <div class="col-md">
+            <div class="alert alert-danger alert-dismissible" role="alert">
+              {{session('error')}}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      @endif
+
+      @if(session('success'))
+      <div class="container-xxl container-p-y pb-0 mb-0">
+        <div class="row">
+          <div class="col-md">
+            <div class="alert alert-success alert-dismissible" role="alert">
+              {{session('success')}}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      @endif
+
+
+
       {{-- Below commented code read by artisan command while installing jetstream. !! Do not remove if you want to use jetstream. --}}
       {{-- <x-banner /> --}}
 

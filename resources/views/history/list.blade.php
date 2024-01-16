@@ -39,11 +39,19 @@
             </td>
             <td>
               @if($item->note_json == 1)
+              @if($item->source == 'listingPortal')
+              <ul>
+                @foreach(json_decode($item->note) as $key => $note)
+                <li>{!! Helper::convertToDisplayName($key) !!} : {{$note}}</li>
+                @endforeach
+              </ul>
+              @else
               <ul>
                 @foreach(json_decode($item->note) as $key => $note)
                 <li>{!! Helper::convertToDisplayName($key) !!} : {{$note->old}} -> {{$note->new}}</li>
                 @endforeach
               </ul>
+              @endif
               @else
               {{$item->note}}
               @endif

@@ -35,4 +35,9 @@ return [
         'number' => env('SMS_NUMBER'),
         'webhook_key' => env('SMS_WEBHOOK_KEY'),
     ],
+    'realestate' => [
+        'base_url' => env('REALESTATE_BASE_URL'),
+        'key' => env('REALESTATE_KEY'),
+        'office' => env('REALESTATE_OFFICE'),
+    ]
 ];

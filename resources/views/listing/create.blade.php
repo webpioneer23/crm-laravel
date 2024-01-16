@@ -267,6 +267,21 @@
                 <label class="form-label" for="rent_appraisal">Rent Appraisal</label>
                 <input name="rent_appraisal" class="form-control" type="text" id="rent_appraisal" />
               </div>
+              <div class="col-sm-6">
+                <div class="small fw-medium mb-3">Portals</div>
+                @foreach($portals as $key => $portal)
+                <div class="mb-2">
+                  <label class="switch">
+                    <input type="checkbox" class="switch-input" name="portal[]" value="{{$portal->id}}" />
+                    <span class="switch-toggle-slider">
+                      <span class="switch-on"></span>
+                      <span class="switch-off"></span>
+                    </span>
+                    <span class="switch-label">{{$portal->name}}</span>
+                  </label>
+                </div>
+                @endforeach
+              </div>
               <div class="col-12 text-end">
                 <!-- <div class="col-12 d-flex justify-content-between text-end"> -->
                 <!-- <button class="btn btn-label-secondary btn-prev" disabled> <i class="ti ti-arrow-left me-sm-1 me-0"></i>
