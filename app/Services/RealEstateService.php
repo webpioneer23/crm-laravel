@@ -24,10 +24,12 @@ class RealEstateService
         ])->get();
 
         foreach ($floorplans_obs as $floorplans_ob) {
-            array_push($floorplans, [
-                "url" => public_path($floorplans_ob->path),
-                "order" => $floorplans_ob->priority == 0 ? 1 : $floorplans_ob->priority,
-            ]);
+            if ($floorplans_ob->path) {
+                array_push($floorplans, [
+                    "url" => public_path($floorplans_ob->path),
+                    "order" => $floorplans_ob->priority == 0 ? 1 : $floorplans_ob->priority,
+                ]);
+            }
         }
 
         $address_suburb_fq_slug = $address->suburb;
@@ -66,14 +68,17 @@ class RealEstateService
             "is-com-lease-by-sqm" => false,
             "header" => $listing->headline,
             "description" => $listing->description,
-            "videos" => [
+            "floorplans" => $floorplans,
+        ];
+
+        if ($listing->video_url) {
+            $listing_attr['videos'] =  [
                 [
                     "url" => $listing->video_url,
                     "order" => 1
                 ]
-            ],
-            "floorplans" => $floorplans,
-        ];
+            ];
+        }
 
         if (intval($listing->ensuites) > 0) {
             $listing_attr['bathroom-ensuite-count'] = intval($listing->ensuites);
