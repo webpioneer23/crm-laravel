@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
   (function () {
     const formAccSettings = document.querySelector('#formAccountSettings'),
       deactivateAcc = document.querySelector('#formAccountDeactivation'),
-      deactivateButton = deactivateAcc.querySelector('.deactivate-account');
+      deactivateButton = deactivateAcc?.querySelector('.deactivate-account');
 
     // Form validation for Add new record
     if (formAccSettings) {
@@ -162,6 +162,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
       const resetImage = accountUserImage.src;
       fileInput.onchange = () => {
         if (fileInput.files[0]) {
+          console.log('fileInput.files[0]->>>', fileInput.files[0]);
+          console.log('url.files[0]->>>', window.URL.createObjectURL(fileInput.files[0]));
           accountUserImage.src = window.URL.createObjectURL(fileInput.files[0]);
         }
       };

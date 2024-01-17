@@ -392,20 +392,21 @@ $navbarDetached = ($navbarDetached ?? '');
             <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
               <div class="avatar avatar-online">
                 <!-- <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}" alt class="h-auto rounded-circle"> -->
-                <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="h-auto rounded-circle">
+                <img src="{{ auth()->user() && auth()->user()->photo ? asset('uploads/'.auth()->user()->photo) : asset('assets/img/avatars/14.png') }}" alt class="h-auto rounded-circle">
               </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
-                <a class="dropdown-item" href="#">
+                <a class="dropdown-item" href="{{route('profile')}}">
                   <div class="d-flex">
                     <div class="flex-shrink-0 me-3">
                       <div class="avatar avatar-online">
                         <!-- <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}" alt class="h-auto rounded-circle"> -->
-                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="h-auto rounded-circle">
+                        <img src="{{ auth()->user() && auth()->user()->photo ? asset('uploads/'.auth()->user()->photo) : asset('assets/img/avatars/14.png') }}" alt class="h-auto rounded-circle">
                       </div>
                     </div>
                     <div class="flex-grow-1">
+
                       <span class="fw-medium d-block">
                         @if (Auth::check())
                         {{ Auth::user()->name }}

@@ -48,7 +48,15 @@ $container = (isset($configData['contentLayout']) && $configData['contentLayout'
         <div class="row">
           <div class="col-md">
             <div class="alert alert-danger alert-dismissible" role="alert">
+              @if(gettype(session('error')) == 'string')
               {{session('error')}}
+              @else
+              <ul>
+                @foreach (json_decode(session('error')) as $key => $error)
+                <li> {{ $error[0] }}</li>
+                @endforeach
+              </ul>
+              @endif
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
               </button>
             </div>
