@@ -169,6 +169,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ListingPortalController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SmsController;
 use App\Http\Controllers\TagController;
 
@@ -378,6 +379,11 @@ Route::get('/listing-suburbs-load', [ListingController::class, "load_suburbs"])-
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', [Analytics::class, 'index'])->name('home');
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/security', [ProfileController::class, 'security'])->name('security');
+    Route::post('/password/update', [ProfileController::class, 'update_password'])->name('password.update');
 
     Route::resource('/tag', TagController::class);
     Route::post('/contact-address', [AddressController::class, 'contact_address'])->name('contact.address');
