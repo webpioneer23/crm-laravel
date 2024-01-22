@@ -136,15 +136,15 @@ class RealEstateService
             $listing_attr['floor-area'] = floatval($listing->house_size);
         }
 
-        if ($listing->house_size) {
+        if ($listing->house_size && $listing->house_size_unit) {
             $listing_attr['floor-area-unit'] = $listing->house_size_unit;
         }
 
-        if ($listing->house_size) {
+        if ($listing->land_size) {
             $listing_attr['land-area'] = floatval($listing->land_size);
         }
 
-        if ($listing->house_size) {
+        if ($listing->land_size && $listing->land_size_unit) {
             $listing_attr['land-area-unit'] = $listing->land_size_unit;
         }
 

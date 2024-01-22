@@ -75,6 +75,12 @@
                     @endfor
             </select>
         </div>
+
+        <div class="col-sm-6">
+            <label class="form-label" for="price">Year Built</label>
+            <input type="number" id="year_built" name="year_built" class="form-control" value="{{$listing->year_built}}">
+        </div>
+
         <div class="col-sm-6">
             <label class="form-label" for="house_size">House size</label>
             <div class="row">
