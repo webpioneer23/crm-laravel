@@ -119,7 +119,6 @@
   }
   $("#category_code").change(function(e) {
     const categoryCode = $(this).val();
-    console.log("ii---", categoryCode);
     getPropertyTypeByCategory(categoryCode);
   })
 </script>
