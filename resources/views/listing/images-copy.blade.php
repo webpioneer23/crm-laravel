@@ -63,13 +63,13 @@
     </div>
     <div class="row g-3 mb-3">
         <div class="col-sm-6">
-            <label class="form-label" for="headline">Headline</label>
-            <input class="form-control" type="text" id="headline" name="headline" value="{{$listing->headline}}">
+            <label class="form-label" for="headline">Headline *</label>
+            <input class="form-control" type="text" id="headline" name="headline" value="{{$listing->headline}}" required>
         </div>
 
         <div class="col-sm-6">
-            <label class="form-label" for="description">Description</label>
-            <textarea class="form-control" name="description" id="description" rows="3" maxlength="2049">{{$listing->description}}</textarea>
+            <label class="form-label" for="description">Description *</label>
+            <textarea class="form-control" name="description" id="description" rows="3" maxlength="2049" required>{{$listing->description}}</textarea>
             <p id="descriptionInfo"></p>
             <div id="descriptionWarning">
             </div>
@@ -82,7 +82,7 @@
     <div class="row g-3 mb-3">
         <div class="col-sm-6">
             <label for="video_url" class="form-label">Video URL</label>
-            <input class="form-control" type="text" id="video_url" name="video_url" value="{{$listing->video_url}}">
+            <input class="form-control" type="url" id="video_url" name="video_url" value="{{$listing->video_url}}">
         </div>
         <div class="col-sm-6">
             <label for="online_tour1" class="form-label">Online Tour 1</label>

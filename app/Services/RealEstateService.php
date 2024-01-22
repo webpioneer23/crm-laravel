@@ -13,9 +13,26 @@ use Illuminate\Support\Facades\URL;
 
 class RealEstateService
 {
-    public static function parsePostListing($listing, $office_id, $is_edit = false, $push_id = "")
+
+    public static function parsePostListing($listing, $office_id, $listing_no = "AAA000", $is_edit = false, $push_id = "")
     {
         $address = Address::find($listing->address_id);
+
+        $photos = [];
+
+        $photos_obs = AFile::where([
+            'target_id' => $listing->id,
+            'type' => 'listing_photo',
+        ])->get();
+
+        foreach ($photos_obs as $photos_ob) {
+            if ($photos_ob->path) {
+                array_push($photos, [
+                    "url" => URL::asset('uploads/' . $photos_ob->path),
+                    "order" => $photos_ob->priority == 0 ? 1 : $photos_ob->priority,
+                ]);
+            }
+        }
 
         $floorplans = [];
 
@@ -37,29 +54,36 @@ class RealEstateService
         $address_suburb_fq_slug = str_replace(" City", "", $address_suburb_fq_slug);
 
 
-        $suburb_fq_slug_ob = ListingSuburb::where('suburb_name', $address_suburb_fq_slug)->first();
-        if (!$suburb_fq_slug_ob) {
-            return back()->with(["error" => "No matching suburbs found in DB."]);
+        // only support Christchurch Central City right now (canterbury_christchurch-city_christchurch-central_christchurch-central)
+        $default_suburb_fq_slug = "canterbury_christchurch-city_christchurch-central_christchurch-central";
+        // $suburb_fq_slug_ob = ListingSuburb::where('suburb_name', $address_suburb_fq_slug)->first();
+
+        // if (!$suburb_fq_slug_ob) {
+        //     return [
+        //         'status' => 0,
+        //         'data' => "No matching suburbs found in DB. Please check Listing Suburbs page."
+        //     ];
+        // }
+        // $suburb_fq_slug = $suburb_fq_slug_ob->suburb_fq_slug;
+        $attr_address = [
+            "suburb-fq-slug" => $default_suburb_fq_slug,
+            // "suburb-fq-slug" => "canterbury_christchurch-city_christchurch-central_christchurch-central",
+            // "building-name" => $address->building,
+            "street-name" => $address->street,
+            // "street-number" => '67', //
+            "pub-address-web" => true,
+        ];
+        if ($address->unit_number) {
+            $attr_address['unit-number'] = $address->unit_number;
         }
-        $suburb_fq_slug = $suburb_fq_slug_ob->suburb_fq_slug;
 
         $listing_attr = [
-            // "listing-no" => "TG01217",
-            "listing-no" => "AACRON$listing->id",
+            "listing-no" => $listing_no,
             "date-of-last-change" => Carbon::now('Pacific/Auckland')->format('Y-m-d\TH:i:sP'),
             "listing-status" => $listing->status,
-            "listing-category-code" => "res_sale", // inject
-            "listing-property-type-code" => "RESHOU", // inject
-            "address" => [
-                "suburb-fq-slug" => $suburb_fq_slug,
-                // "suburb-fq-slug" => "canterbury_christchurch-city_christchurch-central_christchurch-central",
-                // "building-name" => $address->building,
-                // "unit-number" => $address->unit_number,
-                "street-name" => $address->street,
-                // "street-number" => '67', //
-                "pub-address-web" => true,
-            ],
-
+            "listing-category-code" => $listing->category_code,
+            "listing-property-type-code" => $listing->property_type,
+            "address" => $attr_address,
             "bedroom-count" => max(intval($listing->bedrooms), 1),
             "bathroom-full-count" => max(intval($listing->bathrooms), 1),
             "sale-type-code" => "sole", //dev
@@ -69,8 +93,14 @@ class RealEstateService
             "is-com-lease-by-sqm" => false,
             "header" => $listing->headline,
             "description" => $listing->description,
-            "floorplans" => $floorplans,
+            "is-new-construction" => $listing->is_new_construction ? true : false,
+            "is-coastal-waterfront" => $listing->is_coastal_waterfront ? true : false,
+            "has-swimming-pool" => $listing->has_swimming_pool ? true : false,
         ];
+
+        if (count($floorplans) > 0) {
+            $listing_attr['floorplans'] = $floorplans;
+        }
 
         if ($listing->video_url) {
             $listing_attr['videos'] =  [
@@ -79,6 +109,10 @@ class RealEstateService
                     "order" => 1
                 ]
             ];
+        }
+
+        if ($listing->year_built) {
+            $listing_attr['year-built'] = intval($listing->year_built);
         }
 
         if (intval($listing->ensuites) > 0) {
@@ -128,14 +162,6 @@ class RealEstateService
                                 ]
                             ]
                         ],
-                        // "agents" => [
-                        //     "data" => [
-                        //         [
-                        //             "type" => "agent",
-                        //             "id" => 552994
-                        //         ]
-                        //     ]
-                        // ]
                     ]
                 ]
             ];
@@ -154,22 +180,15 @@ class RealEstateService
                                 ]
                             ]
                         ],
-                        // "agents" => [
-                        //     "data" => [
-                        //         [
-                        //             "type" => "agent",
-                        //             "id" => 552994
-                        //         ]
-                        //     ]
-                        // ]
                     ]
                 ]
             ];
         }
 
-
-
-        return $listing_request;
+        return [
+            'status' => 1,
+            'data' => $listing_request
+        ];
     }
 
     public static function postData($url, $data, $is_post = true)
@@ -211,11 +230,9 @@ class RealEstateService
         }
     }
 
-    public static function getData($url)
+    public static function getData($url, $key)
     {
         $client = new Client();
-
-        $key = config('services.realestate.key');
 
         $res = $client->request('GET', $url, [
             'headers' => [

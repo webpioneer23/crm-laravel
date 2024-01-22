@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\ListingPortalMap;
 use Config;
 use Illuminate\Support\Str;
 
@@ -205,5 +206,17 @@ class Helpers
     } else {
       return $amount;
     }
+  }
+
+  public static function listIdFromPortal($portal_id, $push_id)
+  {
+    $listing_portal = ListingPortalMap::where([
+      'portal_id' => $portal_id,
+      'push_id' => $push_id,
+    ])->first();
+    if ($listing_portal) {
+      return $listing_portal->listing_id;
+    }
+    return '';
   }
 }

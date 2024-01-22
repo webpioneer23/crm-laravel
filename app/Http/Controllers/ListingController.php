@@ -9,9 +9,11 @@ use App\Models\Listing;
 use App\Models\ListingInspection;
 use App\Models\ListingPortal;
 use App\Models\ListingPortalMap;
+use App\Models\ListingPropertyType;
 use App\Models\ListingSuburb;
 use App\Models\ListingTag;
 use App\Models\Tag;
+use App\Services\HelpService;
 use App\Services\HistoryService;
 use App\Services\RealEstateService;
 use Carbon\Carbon;
@@ -37,7 +39,11 @@ class ListingController extends Controller
         $portals = ListingPortal::where('active', 1)->get();
         $contacts = Contact::all();
         $addresses = Address::all();
-        return view('listing.create', compact('contacts', 'addresses', 'portals'));
+
+        // new dev
+        $category_code_list = ListingPropertyType::groupBy('listing_category_code')->select('listing_category_code')->get();
+
+        return view('listing.create', compact('contacts', 'addresses', 'portals', 'category_code_list'));
     }
 
     /**
@@ -94,7 +100,15 @@ class ListingController extends Controller
         $tags = Tag::all();
 
         $portals = ListingPortal::where('active', 1)->get();
-        return view('listing.edit', compact('contacts', 'addresses', 'listing', 'tags', 'portals'));
+
+        // new dev
+        $category_code_list = ListingPropertyType::groupBy('listing_category_code')->select('listing_category_code')->get();
+
+        $property_type_list = collect();
+        if ($listing->category_code) {
+            $property_type_list = ListingPropertyType::where('listing_category_code', $listing->category_code)->get();
+        }
+        return view('listing.edit', compact('contacts', 'addresses', 'listing', 'tags', 'portals', 'category_code_list', 'property_type_list'));
     }
 
     /**
@@ -147,7 +161,6 @@ class ListingController extends Controller
                 $data['eco_friendly_features'] = json_encode($data['eco_friendly_features']);
             }
             $data['step'] = max($listing->step, $data['step']);
-
 
             $listing->update($data);
             ListingTag::where('listing_id', $listing->id)->delete();
@@ -311,11 +324,23 @@ class ListingController extends Controller
                     return back()->with(["error" => "The office_id for this portal has not been set."]);
                 }
 
-                $listing_request = RealEstateService::parsePostListing($listing, $office_id);
+                $listing_portal_map_note = $listing_portal_map->note;
+
+                $listing_no = "";
+                if ($listing_portal_map_note && $listing_portal_map_note['listing_no']) {
+                    $listing_no = $listing_portal_map_note['listing_no'];
+                } else {
+                    $listing_no = HelpService::generateRandomString(6) . $listing->id;
+                }
+                $listing_request = RealEstateService::parsePostListing($listing, $office_id, $listing_no);
+
+                if ($listing_request['status'] == 0) {
+                    return back()->with(['error' => $listing_request['data']]);
+                }
 
                 $data = [
                     'key' => $key,
-                    'request_data' => $listing_request,
+                    'request_data' => $listing_request['data'],
                 ];
 
                 $listing_portal_map->update([
@@ -362,7 +387,10 @@ class ListingController extends Controller
                     $push_data = json_decode($publish_result['data'], true);
                     $listing_portal_map->update([
                         'status' => 'published',
-                        'push_id' => $push_data['data'][0]['id']
+                        'push_id' => $push_data['data'][0]['id'],
+                        "note" => [
+                            "listing_no" => $listing_no
+                        ]
                     ]);
 
                     $history_result = [
@@ -419,11 +447,24 @@ class ListingController extends Controller
                     return back()->with(["error" => "The office_id for this portal has not been set."]);
                 }
 
-                $listing_request = RealEstateService::parsePostListing($listing, $office_id, true, $listing_portal_map->push_id);
+                $listing_portal_map_note = $listing_portal_map->note;
+
+                $listing_no = "";
+                if ($listing_portal_map_note && $listing_portal_map_note['listing_no']) {
+                    $listing_no = $listing_portal_map_note['listing_no'];
+                } else {
+                    $listing_no = HelpService::generateRandomString(6) . $listing->id;
+                }
+
+                $listing_request = RealEstateService::parsePostListing($listing, $office_id, $listing_no, true, $listing_portal_map->push_id);
+
+                if ($listing_request['status'] == 0) {
+                    return back()->with(['error' => $listing_request['data']]);
+                }
 
                 $data = [
                     'key' => $key,
-                    'request_data' => $listing_request,
+                    'request_data' => $listing_request['data'],
                 ];
 
                 $listing_portal_map->update([
@@ -525,11 +566,24 @@ class ListingController extends Controller
                     return back()->with(["error" => "The office_id for this portal has not been set."]);
                 }
 
-                $listing_request = RealEstateService::parsePostListing($listing, $office_id, true, $listing_portal_map->push_id);
+                $listing_portal_map_note = $listing_portal_map->note;
+
+                $listing_no = "";
+                if ($listing_portal_map_note && $listing_portal_map_note['listing_no']) {
+                    $listing_no = $listing_portal_map_note['listing_no'];
+                } else {
+                    $listing_no = HelpService::generateRandomString(6) . $listing->id;
+                }
+
+                $listing_request = RealEstateService::parsePostListing($listing, $office_id, $listing_no, true, $listing_portal_map->push_id);
+
+                if ($listing_request['status'] == 0) {
+                    return back()->with(['error' => $listing_request['data']]);
+                }
 
                 $data = [
                     'key' => $key,
-                    'request_data' => $listing_request,
+                    'request_data' => $listing_request['data'],
                 ];
 
                 $listing_portal_map->update([
@@ -603,21 +657,94 @@ class ListingController extends Controller
         $portal = ListingPortal::where('base_url', 'https://sandbox.realestate.co.nz')->first();
 
         $base_url = $portal->base_url;
+        $key = $portal->key;
 
-        $publish_result = RealEstateService::getData("$base_url/feed/v1/suburbs");
-        $listing_suburbs = $publish_result->data;
-        foreach ($listing_suburbs as $suburb) {
-            ListingSuburb::create([
-                'suburb_id' => $suburb->id,
-                'suburb_fq_slug' => $suburb->attributes->{'suburb-fq-slug'},
-                'display_suburb_name' => $suburb->attributes->{'display-suburb-name'},
-                'sdnid' => $suburb->attributes->sdnid,
-                'dynamic_index' => $suburb->attributes->{'dynamic-index'},
-                'suburb_name' => $suburb->attributes->{'suburb-name'},
-                'district_name' => $suburb->attributes->{'district-name'},
-                'region_name' => $suburb->attributes->{'region-name'},
-            ]);
+        $listingSuburb = ListingSuburb::first();
+        if (!$listingSuburb) {
+            $publish_result = RealEstateService::getData("$base_url/feed/v1/suburbs", $key);
+            $listing_suburbs = $publish_result->data;
+            foreach ($listing_suburbs as $suburb) {
+                ListingSuburb::create([
+                    'suburb_id' => $suburb->id,
+                    'suburb_fq_slug' => $suburb->attributes->{'suburb-fq-slug'},
+                    'display_suburb_name' => $suburb->attributes->{'display-suburb-name'},
+                    'sdnid' => $suburb->attributes->sdnid,
+                    'dynamic_index' => $suburb->attributes->{'dynamic-index'},
+                    'suburb_name' => $suburb->attributes->{'suburb-name'},
+                    'district_name' => $suburb->attributes->{'district-name'},
+                    'region_name' => $suburb->attributes->{'region-name'},
+                ]);
+            }
         }
+
+        $listingPropertyType = ListingPropertyType::first();
+        if (!$listingPropertyType) {
+            $publish_result_property = RealEstateService::getData("$base_url/feed/v1/listing-property-types", $key);
+            $listing_properties = $publish_result_property->data;
+            foreach ($listing_properties as $property) {
+                ListingPropertyType::create([
+                    'listing_property_type_code' => $property->attributes->{'listing-property-type-code'},
+                    'listing_category_code' => $property->attributes->{'listing-category-code'},
+                ]);
+            }
+        }
+
         return 'success';
+    }
+
+    public function portal_listing(Request $request)
+    {
+        // return $request;
+
+        $default_size = 20;
+
+        $portals = ListingPortal::where('active', 1)->get();
+
+        $limit = $request->limit ? $request->limit : $default_size;
+        $page = $request->page ? $request->page : 1;
+        $offset = ($page - 1) * $limit;
+
+        $portal_id = $request->portal;
+        $listing_portal = [];
+        $list = collect();
+        if ($portal_id) {
+            $listing_portal = ListingPortal::find($portal_id);
+        } else {
+            $listing_portal = ListingPortal::where('active', 1)->first();
+        }
+
+        if ($listing_portal->base_url == 'https://sandbox.realestate.co.nz') {
+            $key = $listing_portal->key;
+            $office_id = $listing_portal->office_id;
+            $url = "$listing_portal->base_url/feed/v1/listings?filters[officeId]=$office_id&page[limit]=$limit&page[offset]=$offset";
+            $status = $request->status;
+            $listingNo = $request->listingNo;
+            if ($status && $status != 'all') {
+                $url =  $url . "&filters[status]=$status";
+            }
+            if ($listingNo) {
+                $url =  $url . "&filters[listingNo]=$listingNo";
+            }
+            \Log::info('realestate get ulr--- ' . $url);
+            $list = RealEstateService::getData($url, $key);
+        }
+
+
+        return view('listing.portal-listing', compact('portals', 'listing_portal', 'list'));
+    }
+
+    public function suburbs()
+    {
+        $list = ListingSuburb::all();
+        return view('listing.suburbs', compact('list'));
+    }
+
+    public function loadProperty(Request $request)
+    {
+        $list = collect();
+        if ($request->type == 'category-property-type') {
+            $list = ListingPropertyType::where('listing_category_code', $request->categoryCode)->get();
+        }
+        return $list;
     }
 }

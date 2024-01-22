@@ -88,6 +88,16 @@
           "url": "listing/create",
           "name": "Create",
           "slug": "listing.create"
+        },
+        {
+          "url": "portal-listing",
+          "name": "Portal Listing",
+          "slug": "portal.listing"
+        },
+        {
+          "url": "listing-suburbs-list",
+          "name": "Listing Suburbs",
+          "slug": "listing.suburbs"
         }
       ]
     },
