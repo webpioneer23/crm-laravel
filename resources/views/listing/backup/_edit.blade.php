@@ -159,6 +159,9 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="step" value="2">
+            <div class="content-header mb-3">
+              <h5 class="mb-0">Change Status</h5>
+            </div>
             <div class="row g-3 mb-3">
               <div class="col-sm-6 capitalize">
                 <label class="form-label" for="status">Status *</label>
@@ -171,6 +174,17 @@
                   @endforeach
                 </select>
               </div>
+
+              <div class="col-sm-6">
+                <div class="small fw-medium mb-3">Featured Property</div>
+                <label class="switch">
+                  <input class="form-check-input" type="checkbox" id="featured_property" name="featured_property" {{$listing->featured_property ? 'checked' : ''}}>
+                  <span class="switch-label">Tick this box to display this property in featured areas on your website</span>
+                </label>
+              </div>
+            </div>
+            <div class="content-header mb-3">
+              <h5 class="mb-0">About the listing</h5>
             </div>
             <div class="row g-3">
               <div class="col-sm-6">
@@ -178,7 +192,7 @@
                 <select name="category_code" class="select2 form-select" id="category_code" required>
                   <option value="">Select One</option>
                   @foreach($category_code_list as $category_code)
-                  <option value="{{$category_code->listing_category_code}}" {{$listing->category_code == $category_code->listing_category_code ? 'selected' : ''}}>{{$category_code->listing_category_code}}</option>
+                  <option value="{{$category_code->listing_category_code}}" {{$listing->status == $category_code->listing_category_code ? 'selected' : ''}}>{{$category_code->listing_category_code}}</option>
                   @endforeach
                 </select>
               </div>
@@ -186,13 +200,44 @@
               <div class="col-sm-6">
                 <label class="form-label" for="property_type">Property Type *</label>
                 <select name="property_type" class="select2 form-select" id="property_type">
-                  <option value="">Select One</option>
-                  @foreach($property_type_list as $property_type_item)
-                  <option value="{{$property_type_item->listing_property_type_code}}" {{$listing->property_type == $property_type_item->listing_property_type_code ? 'selected' : ''}}>{{$property_type_item->listing_property_type_code}}</option>
+
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label" for="established_development">Established or Development</label>
+                <select name="established_development" class="select2 form-select" id="established_development">
+                  <option value="Established Building" {{$listing->established_development == 'Established Building' ? 'selected' : ''}}>Established Building</option>
+                  <option value="Under Development" {{$listing->established_development == 'Under Development' ? 'selected' : ''}}>Under Development</option>
+                </select>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="home_package">Is Home and Land Package</label>
+                <select name="home_package" class="select2 form-select" id="home_package">
+                  <option value="No" {{$listing->home_package == 'No' ? 'selected' : ''}}>No</option>
+                  <option value="Yes" {{$listing->home_package == 'Yes' ? 'selected' : ''}}>Yes</option>
+                </select>
+              </div>
+
+              <div class="col-sm-6">
+                <?php
+                $authority_list = ["Auction", "Exclusive", "Multi List", "Conjunctional", "Open", "Sale by Negotiation"];
+                ?>
+                <label class="form-label" for="authority">Authority</label>
+                <select name="authority" class="select2 form-select" id="authority">
+                  @foreach($authority_list as $authority_item)
+                  <option value="{{$authority_item}}" {{$listing->authority == $authority_item ? 'selected' : ''}}>{{$authority_item}}</option>
                   @endforeach
                 </select>
               </div>
 
+              <div class="col-sm-6">
+                <label class="form-label" for="office">Office</label>
+                <select name="office" class="select2 form-select" id="office">
+                  <option value="Lab Realty" {{$listing->office == 'Lab Realty' ? 'selected' : ''}}>Lab Realty</option>
+                  <option value="Vivacity" {{$listing->office == 'Vivacity' ? 'selected' : ''}}>Vivacity</option>
+                </select>
+              </div>
 
               <div class="col-sm-6">
                 <label class="form-label" for="expiry_date">Listing Expiry Date</label>
@@ -200,16 +245,57 @@
               </div>
 
               <div class="col-sm-6">
+                <?php
+                $price_type_list = ["Asking Price", "Enquiries Over", "Price By Negotiation", "Deadline Treaty", "Tender"];
+                ?>
+                <label class="form-label" for="price_type">Price Type</label>
+                <select name="price_type" class="select2 form-select" id="price_type">
+                  @foreach($price_type_list as $price_type_item)
+                  <option value="{{$price_type_item}}" {{$listing->price_type == $price_type_item ? 'selected' : ''}}>{{$price_type_item}}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="tender_deadline_date">Tender/Deadline Date</label>
+                <input type="date" class="form-control" name="tender_deadline_date" id="tender_deadline_date" placeholder="YYYY-MM-DD" value="{{$listing->tender_deadline_date}}" />
+              </div>
+
+
+              <div class="col-sm-6">
                 <label class="form-label" for="price">Price *</label>
                 <div class="input-group">
-                  <input type="number" id="price" name="price" class="form-control" value="{{$listing->price}}" required>
+                  <input type="number" id="price" name="price" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" value="{{$listing->price}}" required>
                   <span class="input-group-text">$</span>
                 </div>
               </div>
 
+              <div class="col-sm-6">
+                <label class="form-label" for="display_price">Display Price </label>
+                <div class="form-check mt-3">
+                  <input name="display_price" class="form-check-input" type="radio" value="actual_price" id="actual_price" {{$listing->display_price == 'actual_price' ? 'checked' :''}} />
+                  <label class="form-check-label" for="actual_price">
+                    Show actual price
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input name="display_price" class="form-check-input" type="radio" value="text" id="text" {{$listing->display_price == 'text' ? 'checked' :''}} />
+                  <label class="form-check-label" for="text">
+                    Show text instead of price
+                  </label>
+                </div>
+                <input type="text" name="display_price_text" id="display_price_text" class="form-control form-control-sm" value="{{$listing->display_price_text}}">
+                <div class="form-check">
+                  <input name="display_price" class="form-check-input" type="radio" value="contact_agent" id="contact_agent" {{$listing->display_price == 'contact_agent' ? 'checked' :''}} />
+                  <label class="form-check-label" for="contact_agent">
+                    Hide the price and display 'Contact Agent'
+                  </label>
+                </div>
+
+              </div>
             </div>
 
-            <div class="content-header mb-3 mt-3">
+            <div class="content-header mb-3">
               <h5 class="mb-0">Vendor details</h5>
             </div>
             <div class="row g-3 mb-3">
@@ -243,12 +329,51 @@
                 </div>
               </div>
 
+              <div class="col-sm-6">
+                <label class="form-label" for="display">Display</label>
+                <select name="display" class="select2 form-select" id="display">
+                  <option value="Full Address" {{$listing->display == 'Full Address' ? 'selected' : ''}}>Full Address</option>
+                  <option value="Suburb Only" {{$listing->display == 'Suburb Only' ? 'selected' : ''}}>Suburb Only</option>
+                </select>
+              </div>
+            </div>
+
+
+            <div class="content-header mt-3 mb-3">
+              <h5 class="mb-0">Internal Notes</h5>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="form-label" for="key_number">Key Number</label>
+                <input name="key_number" class="form-control" type="text" id="key_number" value="{{$listing->key_number}}" />
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="key_location">Key Location</label>
+                <input name="key_location" class="form-control" type="text" id="key_location" value="{{$listing->key_location}}" />
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="alarm_code">Alarm Code</label>
+                <input name="alarm_code" class="form-control" type="text" id="alarm_code" value="{{$listing->alarm_code}}" />
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label" for="internal_notes">Internal Notes</label>
+                <input name="internal_notes" class="form-control" type="text" id="internal_notes" value="{{$listing->internal_notes}}" />
+              </div>
             </div>
 
             <div class="content-header mt-3 mb-3">
-              <h5 class="mb-0">Portals</h5>
+              <h5 class="mb-0">Rent Appraisal</h5>
             </div>
             <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="form-label" for="rent_appraisal">Rent Appraisal</label>
+                <input name="rent_appraisal" class="form-control" type="text" id="rent_appraisal" value="{{$listing->rent_appraisal}}" />
+              </div>
+
+
               <?php
               $portal_ids = $listing->portal_ids();
               ?>
@@ -271,7 +396,10 @@
 
 
               <div class="col-12 text-end">
-
+                <!-- <div class="col-12 d-flex justify-content-between text-end"> -->
+                <!-- <button class="btn btn-label-secondary btn-prev" disabled> <i class="ti ti-arrow-left me-sm-1 me-0"></i>
+                  <span class="align-middle d-sm-inline-block d-none">Previous</span>
+                </button> -->
                 <button type="submit" class="btn btn-primary btn-next"> <span class="align-middle d-sm-inline-block d-none me-sm-1">Next</span> <i class="ti ti-arrow-right"></i></button>
               </div>
             </div>

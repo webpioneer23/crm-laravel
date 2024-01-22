@@ -35,6 +35,7 @@ class Listing extends Model
         'address_id',
         'contact_id',
         'display_price_text',
+        'category_code',
 
         // property detail
         'bedrooms',
@@ -64,6 +65,10 @@ class Listing extends Model
         'heating_cooling',
         'eco_friendly_features',
         'other_features',
+        'is_new_construction',
+        'is_coastal_waterfront',
+        'has_swimming_pool',
+        'year_built',
 
         // image copy
         'headline',

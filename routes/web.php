@@ -408,10 +408,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/listingPortal', ListingPortalController::class);
     Route::post('/portal-status', [ListingPortalController::class, 'update_status'])->name('portal-status');
 
+    Route::get('/listing-property', [ListingController::class, 'loadProperty'])->name('listing.property');
+
     Route::resource('/listing', ListingController::class);
     Route::post('/listing-publish', [ListingController::class, "publish"])->name('listing.publish');
     Route::put('/listing-publish', [ListingController::class, "re_publish"])->name('listing.update.publish');
     Route::delete('/delete-listing-publish', [ListingController::class, "delete_publish"])->name('listing.delete.publish');
+
+    Route::get('/portal-listing', [ListingController::class, 'portal_listing'])->name('portal.listing');
+
+    Route::get('/listing-suburbs-list', [ListingController::class, 'suburbs'])->name('listing.suburbs');
+
+
 
     Route::resource('/contract', ContractController::class);
     Route::get('/contract/{id}/files', [ContractController::class, 'files'])->name('contract.files');
