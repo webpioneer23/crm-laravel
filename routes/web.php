@@ -3,6 +3,8 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AppraisalController;
 use App\Http\Controllers\ListingController;
+use App\Http\Controllers\TaskBoardController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
 use App\Http\Controllers\dashboard\Analytics;
@@ -432,4 +434,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('/lead', LeadController::class);
     Route::get('/associate-address', [LeadController::class, 'associate_address'])->name("associate.address");
+
+    Route::resource('task', TaskController::class);
+    Route::resource('task-board', TaskBoardController::class);
 });

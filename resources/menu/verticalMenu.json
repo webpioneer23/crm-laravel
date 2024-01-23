@@ -161,13 +161,14 @@
           "url": "tag",
           "name": "List",
           "slug": "tag.index"
-        },
-        {
-          "url": "tag/create",
-          "name": "Create",
-          "slug": "tag.create"
         }
       ]
+    },
+    {
+      "name": "Task",
+      "icon": "menu-icon tf-icons ti ti-layout-kanban",
+      "slug": "task.index",
+      "url": "task"
     },
     {
       "name": "SMS Integration",
