@@ -67,6 +67,34 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        //
+        if ($task) {
+            $task->delete();
+            return response()->json(true);
+        }
+        return response()->json(false);
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $taskIds = $request->taskIds;
+        $diffBoard = $request->diffBoard;
+        $boardId = $request->boardId;
+
+        foreach ($taskIds as $key => $taskId) {
+            $task = Task::find($taskId);
+            if ($task) {
+                if ($diffBoard) {
+                    $task->update([
+                        'priority' => $key + 1,
+                        'board_id' => $boardId
+                    ]);
+                } else {
+                    $task->update([
+                        'priority' => $key + 1,
+                    ]);
+                }
+            }
+        }
+        return response()->json(true);
     }
 }

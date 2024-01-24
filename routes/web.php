@@ -436,5 +436,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/associate-address', [LeadController::class, 'associate_address'])->name("associate.address");
 
     Route::resource('task', TaskController::class);
+    Route::post('task-order', [TaskController::class, 'updateOrder']);
+
     Route::resource('task-board', TaskBoardController::class);
+    Route::post('task-board-order', [TaskBoardController::class, 'updateOrder']);
 });

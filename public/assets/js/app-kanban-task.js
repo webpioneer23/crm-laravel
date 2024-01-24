@@ -16,6 +16,12 @@
     select2 = $('.select2'), // ! Using jquery vars due to select2 jQuery dependency
     assetsPath = document.querySelector('html').getAttribute('data-assets-path');
 
+  let prefixUrl = '/public';
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    prefixUrl = '';
+  }
+  console.log({ prefixUrl });
+
   $.ajaxSetup({
     headers: {
       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -27,12 +33,15 @@
 
   // Get kanban data
   // const kanbanResponse = await fetch(assetsPath + 'json/kanban.json');
-  const kanbanResponse = await fetch('/task-board');
+  const kanbanResponse = await fetch(prefixUrl + '/task-board');
   if (!kanbanResponse.ok) {
     console.error('error', kanbanResponse);
   }
   boards = await kanbanResponse.json();
-  console.log('boards->>>', boards);
+  boards = boards.map(board => ({
+    ...board,
+    id: `board-${board.id}`
+  }));
 
   // datepicker init
   if (datePicker) {
@@ -41,6 +50,73 @@
       altInput: true,
       altFormat: 'j F, Y',
       dateFormat: 'Y-m-d'
+    });
+  }
+
+  async function deleteAjax(url) {
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+      });
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async function postAjax(url, requestBody, isPut = false) {
+    try {
+      const response = await fetch(url, {
+        method: isPut ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        body: JSON.stringify(requestBody)
+      });
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.log('error->> ', error);
+    }
+  }
+
+  function swalSuccess() {
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: {
+        confirmButton: 'btn btn-primary'
+      },
+      buttonsStyling: false
+    });
+  }
+
+  function swalError() {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: {
+        confirmButton: 'btn btn-primary'
+      },
+      buttonsStyling: false
     });
   }
 
@@ -108,6 +184,14 @@
   }
   // Render header
   function renderHeader(color, text) {
+    return (
+      "<div class='d-flex justify-content-between flex-wrap align-items-center mb-2 pb-1'>" +
+      "<div class='item-badges'> " +
+      '</div>' +
+      '</div>' +
+      renderDropdown() +
+      '</div>'
+    );
     return (
       "<div class='d-flex justify-content-between flex-wrap align-items-center mb-2 pb-1'>" +
       "<div class='item-badges'> " +
@@ -243,70 +327,120 @@
         '</div>';
       kanban.addForm(boardId, addNew);
 
-      addNew.addEventListener('submit', function (e) {
+      addNew.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        $.ajax({
-          url: 'task',
-          type: 'post',
-          data: {
-            name: e.target[0].value,
-            boardId
-          },
-          success: function (res) {
-            console.log({ res });
-            const currentBoard = [].slice.call(
-              document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .kanban-item')
-            );
-            kanban.addElement(boardId, {
-              title: "<span class='kanban-text'>" + e.target[0].value + '</span>',
-              id: boardId + '-' + currentBoard.length + 1
-            });
-
-            // add dropdown in new boards
-            const kanbanText = [].slice.call(
-              document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .kanban-text')
-            );
-            kanbanText.forEach(function (e) {
-              e.insertAdjacentHTML('beforebegin', renderDropdown());
-            });
-
-            // prevent sidebar to open onclick dropdown buttons of new tasks
-            const newTaskDropdown = [].slice.call(
-              document.querySelectorAll('.kanban-item .kanban-tasks-item-dropdown')
-            );
-            if (newTaskDropdown) {
-              newTaskDropdown.forEach(function (e) {
-                e.addEventListener('click', function (el) {
-                  el.stopPropagation();
-                });
-              });
-            }
-
-            // delete tasks for new boards
-            const deleteTask = [].slice.call(
-              document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .delete-task')
-            );
-            deleteTask.forEach(function (e) {
-              e.addEventListener('click', function () {
-                const id = this.closest('.kanban-item').getAttribute('data-eid');
-                kanban.removeElement(id);
-              });
-            });
-            addNew.remove();
-          },
-          error: function (err) {
-            console.log({ err });
-            alert('Something went wrong');
-          }
+        const newTask = await postAjax(prefixUrl + '/task', {
+          name: e.target[0].value,
+          boardId
         });
+
+        if (!newTask) {
+          swalError();
+          return;
+        }
+        swalSuccess();
+
+        kanban.addElement(boardId, {
+          title: "<span class='kanban-text'>" + e.target[0].value + '</span>',
+          id: 'task-' + newTask.id
+        });
+
+        // add dropdown in new boards
+        const kanbanText = [].slice.call(
+          document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .kanban-text')
+        );
+        kanbanText.forEach(function (e) {
+          e.insertAdjacentHTML('beforebegin', renderDropdown());
+        });
+
+        // prevent sidebar to open onclick dropdown buttons of new tasks
+        const newTaskDropdown = [].slice.call(document.querySelectorAll('.kanban-item .kanban-tasks-item-dropdown'));
+        if (newTaskDropdown) {
+          newTaskDropdown.forEach(function (e) {
+            e.addEventListener('click', function (el) {
+              el.stopPropagation();
+            });
+          });
+        }
+
+        // delete tasks for new boards
+        const deleteTask = [].slice.call(
+          document.querySelectorAll('.kanban-board[data-id=' + boardId + '] .delete-task')
+        );
+        deleteTask.forEach(function (e) {
+          e.addEventListener('click', async function () {
+            const id = this.closest('.kanban-item').getAttribute('data-eid');
+            const taskIdArr = id.split('-');
+            if (taskIdArr.length >= 2) {
+              const taskId = taskIdArr[1];
+              const taskDeleted = await deleteAjax(prefixUrl + '/task/' + taskId);
+              if (taskDeleted) {
+                swalSuccess();
+                kanban.removeElement(id);
+              } else {
+                swalError();
+                return;
+              }
+            }
+          });
+        });
+        addNew.remove();
       });
 
       // Remove form on clicking cancel button
       addNew.querySelector('.cancel-add-item').addEventListener('click', function (e) {
         addNew.remove();
       });
-    }
+    },
+    dragendBoard: async function (el) {
+      const kanbanBoardList = document.querySelectorAll('.kanban-board');
+      const boardIds = [];
+      for (let index = 0; index < kanbanBoardList.length; index++) {
+        const element = kanbanBoardList[index];
+        const boardIdArr = element.getAttribute('data-id').split('-');
+        boardIds.push(boardIdArr[1]);
+      }
+      await postAjax(prefixUrl + '/task-board-order', { boardIds });
+    },
+    dropEl: async function (el, target, source, sibling) {
+      console.log(el, target, source, sibling);
+      let diffBoard = false;
+
+      const targetId = $(target).closest('div.kanban-board').attr('data-id');
+      const sourceId = $(source).closest('div.kanban-board').attr('data-id');
+
+      if (targetId === sourceId) {
+        diffBoard = false;
+      } else {
+        diffBoard = true;
+      }
+
+      const kanbanTaskList = $(target).children('.kanban-item');
+      const taskIds = [];
+      for (let index = 0; index < kanbanTaskList.length; index++) {
+        const element = kanbanTaskList[index];
+        const taskIdArr = $(element).data('eid').split('-');
+        taskIds.push(taskIdArr[1]);
+      }
+
+      const boardId = targetId.split('-')[1];
+
+      await postAjax(prefixUrl + '/task-order', { taskIds, diffBoard, boardId });
+    },
+
+    context: function (el, event) {
+      console.log('context');
+    }, // callback when any board's item are right clicked
+    dragEl: function (el, source) {
+      console.log('dragEl');
+    }, // callback when any board's item are dragged
+    dragendEl: function (el) {
+      console.log('dragendEl');
+    }, // callback when any board's item stop drag
+    dragBoard: function (el, source) {
+      console.log('dragBoard');
+    } // callback when any board stop drag
   });
 
   // Kanban Wrapper scrollbar
@@ -332,27 +466,29 @@
           "'>";
       }
       el.textContent = '';
+
       if (el.getAttribute('data-badge') !== undefined && el.getAttribute('data-badge-text') !== undefined) {
         el.insertAdjacentHTML(
           'afterbegin',
           renderHeader(el.getAttribute('data-badge'), el.getAttribute('data-badge-text')) + img + element
         );
       }
-      if (
-        el.getAttribute('data-comments') !== undefined ||
-        el.getAttribute('data-due-date') !== undefined ||
-        el.getAttribute('data-assigned') !== undefined
-      ) {
-        el.insertAdjacentHTML(
-          'beforeend',
-          renderFooter(
-            el.getAttribute('data-attachments'),
-            el.getAttribute('data-comments'),
-            el.getAttribute('data-assigned'),
-            el.getAttribute('data-members')
-          )
-        );
-      }
+      // dev need
+      // if (
+      //   el.getAttribute('data-comments') !== undefined ||
+      //   el.getAttribute('data-due-date') !== undefined ||
+      //   el.getAttribute('data-assigned') !== undefined
+      // ) {
+      //   el.insertAdjacentHTML(
+      //     'beforeend',
+      //     renderFooter(
+      //       el.getAttribute('data-attachments'),
+      //       el.getAttribute('data-comments'),
+      //       el.getAttribute('data-assigned'),
+      //       el.getAttribute('data-members')
+      //     )
+      //   );
+      // }
     });
   }
 
@@ -394,6 +530,13 @@
         this.contentEditable = 'true';
       });
 
+      elem.addEventListener('focusout', async function (e) {
+        const newTitle = $(this).text();
+        const id = this.closest('.kanban-board').getAttribute('data-id');
+        const boardId = id.split('-')[1];
+        await postAjax(prefixUrl + '/task-board/' + boardId, { title: newTitle }, true);
+      });
+
       // Appends delete icon with title
       elem.insertAdjacentHTML('afterend', renderBoardDropdown());
     });
@@ -403,9 +546,15 @@
   const deleteBoards = [].slice.call(document.querySelectorAll('.delete-board'));
   if (deleteBoards) {
     deleteBoards.forEach(function (elem) {
-      elem.addEventListener('click', function () {
+      elem.addEventListener('click', async function () {
         const id = this.closest('.kanban-board').getAttribute('data-id');
-        kanban.removeBoard(id);
+        const result = await deleteAjax(prefixUrl + '/task-board/' + id);
+        if (result) {
+          kanban.removeBoard(id);
+          swalSuccess();
+        } else {
+          swalError();
+        }
       });
     });
   }
@@ -414,9 +563,20 @@
   const deleteTask = [].slice.call(document.querySelectorAll('.delete-task'));
   if (deleteTask) {
     deleteTask.forEach(function (e) {
-      e.addEventListener('click', function () {
+      e.addEventListener('click', async function () {
         const id = this.closest('.kanban-item').getAttribute('data-eid');
-        kanban.removeElement(id);
+        const taskIdArr = id.split('-');
+        if (taskIdArr.length >= 2) {
+          const taskId = taskIdArr[1];
+          const taskDeleted = await deleteAjax(prefixUrl + '/task/' + taskId);
+          if (taskDeleted) {
+            swalSuccess();
+            kanban.removeElement(id);
+          } else {
+            swalError();
+            return;
+          }
+        }
       });
     });
   }
@@ -433,74 +593,71 @@
 
   // Add new board
   if (kanbanAddNewBoard) {
-    kanbanAddNewBoard.addEventListener('submit', function (e) {
+    kanbanAddNewBoard.addEventListener('submit', async function (e) {
       e.preventDefault();
       const thisEle = this,
         value = thisEle.querySelector('.form-control').value;
-      $.ajax({
-        url: 'task-board',
-        type: 'post',
-        data: {
+
+      const newBoard = await postAjax(prefixUrl + '/task-board', { title: value });
+      if (!newBoard) {
+        swalError();
+        return;
+      }
+
+      swalSuccess();
+      const id = `board-${newBoard.id}`;
+      kanban.addBoards([
+        {
+          id: id,
           title: value
-        },
-        success: function (res) {
-          const id = `board-${res.id}`;
-          kanban.addBoards([
-            {
-              id: id,
-              title: value
-            }
-          ]);
-
-          // Adds delete board option to new board, delete new boards & updates data-order
-          const kanbanBoardLastChild = document.querySelectorAll('.kanban-board:last-child')[0];
-          if (kanbanBoardLastChild) {
-            const header = kanbanBoardLastChild.querySelector('.kanban-title-board');
-            header.insertAdjacentHTML('afterend', renderBoardDropdown());
-
-            // To make newly added boards title editable
-            kanbanBoardLastChild.querySelector('.kanban-title-board').addEventListener('mouseenter', function () {
-              this.contentEditable = 'true';
-            });
-          }
-
-          // Add delete event to delete newly added boards
-          const deleteNewBoards = kanbanBoardLastChild.querySelector('.delete-board');
-          if (deleteNewBoards) {
-            deleteNewBoards.addEventListener('click', function () {
-              const id = this.closest('.kanban-board').getAttribute('data-id');
-              $.ajax({
-                url: 'task-board/' + id,
-                type: 'delete',
-                success: function (res) {
-                  console.log({ res });
-                  kanban.removeBoard(id);
-                },
-                error: function (err) {
-                  console.log({ err });
-                  alert('Something went wrong!');
-                }
-              });
-            });
-          }
-
-          // Remove current append new add new form
-          if (kanbanAddNewInput) {
-            kanbanAddNewInput.forEach(el => {
-              el.classList.add('d-none');
-            });
-          }
-
-          // To place inline add new btn after clicking add btn
-          if (kanbanContainer) {
-            kanbanContainer.appendChild(kanbanAddNewBoard);
-          }
-        },
-        error: function (err) {
-          console.log({ err });
-          alert('Something went wrong!');
         }
-      });
+      ]);
+
+      // Adds delete board option to new board, delete new boards & updates data-order
+      const kanbanBoardLastChild = document.querySelectorAll('.kanban-board:last-child')[0];
+      if (kanbanBoardLastChild) {
+        const header = kanbanBoardLastChild.querySelector('.kanban-title-board');
+        header.insertAdjacentHTML('afterend', renderBoardDropdown());
+        console.log('data order');
+        // To make newly added boards title editable
+        kanbanBoardLastChild.querySelector('.kanban-title-board').addEventListener('mouseenter', function () {
+          this.contentEditable = 'true';
+        });
+
+        kanbanBoardLastChild.querySelector('.kanban-title-board').addEventListener('focusout', async function (e) {
+          const newTitle = $(this).text();
+          const id = this.closest('.kanban-board').getAttribute('data-id');
+          const boardId = id.split('-')[1];
+          await postAjax(prefixUrl + '/task-board/' + boardId, { title: newTitle }, true);
+        });
+      }
+
+      // Add delete event to delete newly added boards
+      const deleteNewBoards = kanbanBoardLastChild.querySelector('.delete-board');
+      if (deleteNewBoards) {
+        deleteNewBoards.addEventListener('click', async function () {
+          const id = this.closest('.kanban-board').getAttribute('data-id');
+          const deleteResult = await deleteAjax(prefixUrl + '/task-board/' + id);
+          if (!deleteResult) {
+            swalError();
+            return;
+          }
+          swalSuccess();
+          kanban.removeBoard(id);
+        });
+      }
+
+      // Remove current append new add new form
+      if (kanbanAddNewInput) {
+        kanbanAddNewInput.forEach(el => {
+          el.classList.add('d-none');
+        });
+      }
+
+      // To place inline add new btn after clicking add btn
+      if (kanbanContainer) {
+        kanbanContainer.appendChild(kanbanAddNewBoard);
+      }
     });
   }
 

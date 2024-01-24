@@ -9,6 +9,10 @@
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/quill/typography.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/quill/katex.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/quill/editor.css')}}" />
+
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/animate-css/animate.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/sweetalert2/sweetalert2.css')}}" />
+
 @endsection
 
 @section('page-style')
@@ -22,6 +26,8 @@
 <script src="{{asset('assets/vendor//libs/jkanban/jkanban.js')}}"></script>
 <script src="{{asset('assets/vendor//libs/quill/katex.js')}}"></script>
 <script src="{{asset('assets/vendor//libs/quill/quill.js')}}"></script>
+
+<script src="{{asset('assets/vendor/libs/sweetalert2/sweetalert2.js')}}"></script>
 @endsection
 
 @section('page-script')

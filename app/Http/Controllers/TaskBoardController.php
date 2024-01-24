@@ -13,13 +13,14 @@ class TaskBoardController extends Controller
      */
     public function index()
     {
-        $boards = TaskBoard::all();
+        $boards = TaskBoard::orderBy('priority')->get();;
         foreach ($boards as $key => $board) {
             $result = [];
-            $tasks = Task::where('board_id', $board->id)->get();
+            $tasks = Task::where('board_id', $board->id)->orderBy('priority')->get();
             foreach ($tasks as $key => $task) {
                 array_push($result, [
-                    'title' => $task->name
+                    'id' => 'task-' . $task->id,
+                    'title' => $task->name,
                 ]);
             }
             $board->item = $result;
@@ -40,8 +41,10 @@ class TaskBoardController extends Controller
      */
     public function store(Request $request)
     {
+        $priority_max = TaskBoard::max('priority');
         $newBoard = TaskBoard::create([
-            'title' => $request->title
+            'title' => $request->title,
+            'priority' =>  $priority_max + 1
         ]);
         return $newBoard;
     }
@@ -67,7 +70,13 @@ class TaskBoardController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $board = TaskBoard::find($id);
+        if ($board) {
+            $board->update([
+                'title' => $request->title
+            ]);
+        }
+        return response()->json(true);
     }
 
     /**
@@ -83,6 +92,17 @@ class TaskBoardController extends Controller
                 $board->delete();
             }
         }
-        return true;
+        return response()->json(true);
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $board_ids = $request->boardIds;
+        foreach ($board_ids as $key => $id) {
+            $board = TaskBoard::find($id)->update([
+                'priority' => $key + 1
+            ]);
+        }
+        return response()->json(true);
     }
 }

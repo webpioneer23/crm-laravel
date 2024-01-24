@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('task_boards', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->integer('priority')->default(1);
             $table->softDeletes();
             $table->timestamps();
         });

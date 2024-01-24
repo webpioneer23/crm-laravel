@@ -15,5 +15,6 @@ class Task extends Model
         'due_date',
         'comment',
         'note',
+        'priority'
     ];
 }

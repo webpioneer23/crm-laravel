@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('due_date')->nullable();
             $table->text('comment')->nullable();
             $table->text('note')->nullable();
+            $table->integer('priority')->default(1);
             $table->timestamps();
         });
     }

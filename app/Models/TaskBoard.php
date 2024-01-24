@@ -11,7 +11,8 @@ class TaskBoard extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'title'
+        'title',
+        'priority'
     ];
 
     // public function getItemAttribute()
