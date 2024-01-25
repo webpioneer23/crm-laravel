@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\TaskBoard;
+use App\Models\TaskProperty;
 use Illuminate\Http\Request;
 
 class TaskBoardController extends Controller
@@ -18,9 +19,37 @@ class TaskBoardController extends Controller
             $result = [];
             $tasks = Task::where('board_id', $board->id)->orderBy('priority')->get();
             foreach ($tasks as $key => $task) {
+                $properties = TaskProperty::where('task_id', $task->id)->get();
+                $users = [];
+                $listings = [];
+                $appraisals = [];
+                $contacts = [];
+                $contracts = [];
+                foreach ($properties as $property) {
+                    if ($property->type == 'users') {
+                        array_push($users, $property->property_id);
+                    }
+                    if ($property->type == 'listings') {
+                        array_push($listings, $property->property_id);
+                    }
+                    if ($property->type == 'appraisals') {
+                        array_push($appraisals, $property->property_id);
+                    }
+                    if ($property->type == 'contacts') {
+                        array_push($contacts, $property->property_id);
+                    }
+                    if ($property->type == 'contracts') {
+                        array_push($contracts, $property->property_id);
+                    }
+                }
                 array_push($result, [
                     'id' => 'task-' . $task->id,
                     'title' => $task->name,
+                    'users' => implode(",", $users),
+                    'listings' => implode(",", $listings),
+                    'appraisals' => implode(",", $appraisals),
+                    'contacts' => implode(",", $contacts),
+                    'contracts' => implode(",", $contracts),
                 ]);
             }
             $board->item = $result;
@@ -89,7 +118,7 @@ class TaskBoardController extends Controller
         if ($board_id) {
             $board = TaskBoard::find($board_id);
             if ($board) {
-                $board->delete();
+                $board->forceDelete();
             }
         }
         return response()->json(true);

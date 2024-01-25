@@ -14,7 +14,8 @@
     kanbanAddBoardBtn = document.querySelector('.kanban-add-board-btn'),
     datePicker = document.querySelector('#due-date'),
     select2 = $('.select2'), // ! Using jquery vars due to select2 jQuery dependency
-    assetsPath = document.querySelector('html').getAttribute('data-assets-path');
+    assetsPath = document.querySelector('html').getAttribute('data-assets-path'),
+    updateBtn = document.getElementById('update-btn');
 
   let prefixUrl = '/public';
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
@@ -95,16 +96,17 @@
   }
 
   function swalSuccess() {
-    Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      showConfirmButton: false,
-      timer: 1500,
-      customClass: {
-        confirmButton: 'btn btn-primary'
-      },
-      buttonsStyling: false
-    });
+    // Swal.fire({
+    //   icon: 'success',
+    //   title: 'Success',
+    //   showConfirmButton: false,
+    //   timer: 1500,
+    //   customClass: {
+    //     confirmButton: 'btn btn-primary'
+    //   },
+    //   buttonsStyling: false
+    // });
+    console.log('success');
   }
 
   function swalError() {
@@ -134,7 +136,7 @@
     select2.each(function () {
       var $this = $(this);
       $this.wrap("<div class='position-relative'></div>").select2({
-        placeholder: 'Select Label',
+        placeholder: 'Select',
         dropdownParent: $this.parent(),
         templateResult: renderLabels,
         templateSelection: renderLabels,
@@ -162,9 +164,9 @@
       "<div class='dropdown'>" +
       "<i class='dropdown-toggle ti ti-dots-vertical cursor-pointer' id='board-dropdown' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></i>" +
       "<div class='dropdown-menu dropdown-menu-end' aria-labelledby='board-dropdown'>" +
-      "<a class='dropdown-item delete-board' href='javascript:void(0)'> <i class='ti ti-trash ti-xs' me-1></i> <span class='align-middle'>Delete</span></a>" +
-      "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-edit ti-xs' me-1></i> <span class='align-middle'>Rename</span></a>" +
-      "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-archive ti-xs' me-1></i> <span class='align-middle'>Archive</span></a>" +
+      "<a class='dropdown-item delete-board btn-danger' href='javascript:void(0)'> <i class='ti ti-trash ti-xs' me-1></i> <span class='align-middle'>Delete</span></a>" +
+      // "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-edit ti-xs' me-1></i> <span class='align-middle'>Rename</span></a>" +
+      // "<a class='dropdown-item' href='javascript:void(0)'><i class='ti ti-archive ti-xs' me-1></i> <span class='align-middle'>Archive</span></a>" +
       '</div>' +
       '</div>'
     );
@@ -175,7 +177,7 @@
       "<div class='dropdown kanban-tasks-item-dropdown'>" +
       "<i class='dropdown-toggle ti ti-dots-vertical' id='kanban-tasks-item-dropdown' data-bs-toggle='dropdown' aria-haspopup='true' aria-expanded='false'></i>" +
       "<div class='dropdown-menu dropdown-menu-end' aria-labelledby='kanban-tasks-item-dropdown'>" +
-      "<a class='dropdown-item' href='javascript:void(0)'>Copy task link</a>" +
+      // "<a class='dropdown-item' href='javascript:void(0)'>Copy task link</a>" +
       "<a class='dropdown-item' href='javascript:void(0)'>Duplicate task</a>" +
       "<a class='dropdown-item delete-task' href='javascript:void(0)'>Delete</a>" +
       '</div>' +
@@ -243,7 +245,18 @@
   }
 
   // Render footer
-  function renderFooter(attachments, comments, assigned, members) {
+  function renderFooter(users, listings, appraisals, contacts, contracts) {
+    return (
+      "<div class='d-flex align-items-center flex-wrap mt-2 pt-1'>" +
+      "<div class='item-badges demo-inline-spacing'>" +
+      (users ? `<div class='badge rounded-pill bg-label-success'>User</div>` : '') +
+      (listings ? `<div class='badge rounded-pill bg-label-danger'>Listing</div>` : '') +
+      (appraisals ? `<div class='badge rounded-pill bg-label-warning'>Appraisal</div>` : '') +
+      (contacts ? `<div class='badge rounded-pill bg-label-info'>Contact</div>` : '') +
+      (contracts ? `<div class='badge rounded-pill bg-label-primary'>Contract</div>` : '') +
+      '</div></div>'
+    );
+
     return (
       "<div class='d-flex justify-content-between align-items-center flex-wrap mt-2 pt-1'>" +
       "<div class='d-flex'> <span class='d-flex align-items-center me-2'><i class='ti ti-paperclip ti-xs me-1'></i>" +
@@ -278,43 +291,62 @@
       footer: false // position the button on footer
     },
     click: function (el) {
+      // click task card, open sidebar modal
       let element = el;
-      let title = element.getAttribute('data-eid')
-          ? element.querySelector('.kanban-text').textContent
-          : element.textContent,
-        date = element.getAttribute('data-due-date'),
-        dateObj = new Date(),
-        year = dateObj.getFullYear(),
-        dateToUse = date
-          ? date + ', ' + year
-          : dateObj.getDate() + ' ' + dateObj.toLocaleString('en', { month: 'long' }) + ', ' + year,
-        label = element.getAttribute('data-badge-text'),
-        avatars = element.getAttribute('data-assigned');
+      let taskId = element.getAttribute('data-eid');
+      let users = element.getAttribute('data-users');
+      let listings = element.getAttribute('data-listings');
+      let appraisals = element.getAttribute('data-appraisals');
+      let contacts = element.getAttribute('data-contacts');
+      let contracts = element.getAttribute('data-contracts');
+      users = users.split(',');
+      listings = listings.split(',');
+      appraisals = appraisals.split(',');
+      contacts = contacts.split(',');
+      contracts = contracts.split(',');
+
+      let title = taskId ? element.querySelector('.kanban-text').textContent : element.textContent;
+      taskId = taskId.split('-');
+      // date = element.getAttribute('data-due-date'),
+      // dateObj = new Date(),
+      // year = dateObj.getFullYear(),
+      // dateToUse = date
+      //   ? date + ', ' + year
+      //   : dateObj.getDate() + ' ' + dateObj.toLocaleString('en', { month: 'long' }) + ', ' + year,
+      // label = element.getAttribute('data-badge-text'),
+      // avatars = element.getAttribute('data-assigned');
 
       // Show kanban offcanvas
       kanbanOffcanvas.show();
 
       // To get data on sidebar
       kanbanSidebar.querySelector('#title').value = title;
-      kanbanSidebar.querySelector('#due-date').nextSibling.value = dateToUse;
+      kanbanSidebar.querySelector('#task-id').value = taskId[1];
+      $('#users').val(users).trigger('change');
+      $('#listings').val(listings).trigger('change');
+      $('#appraisals').val(appraisals).trigger('change');
+      $('#contacts').val(contacts).trigger('change');
+      $('#contracts').val(contracts).trigger('change');
+      // kanbanSidebar.querySelector('#due-date').nextSibling.value = dateToUse;
 
       // ! Using jQuery method to get sidebar due to select2 dependency
-      $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');
+      // $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');
 
       // Remove & Update assigned
-      kanbanSidebar.querySelector('.assigned').innerHTML = '';
-      kanbanSidebar
-        .querySelector('.assigned')
-        .insertAdjacentHTML(
-          'afterbegin',
-          renderAvatar(avatars, false, 'xs', '1', el.getAttribute('data-members')) +
-            "<div class='avatar avatar-xs ms-1'>" +
-            "<span class='avatar-initial rounded-circle bg-label-secondary'><i class='ti ti-plus ti-xs text-heading'></i></span>" +
-            '</div>'
-        );
+      // kanbanSidebar.querySelector('.assigned').innerHTML = '';
+      // kanbanSidebar
+      //   .querySelector('.assigned')
+      //   .insertAdjacentHTML(
+      //     'afterbegin',
+      //     renderAvatar(avatars, false, 'xs', '1', el.getAttribute('data-members')) +
+      //       "<div class='avatar avatar-xs ms-1'>" +
+      //       "<span class='avatar-initial rounded-circle bg-label-secondary'><i class='ti ti-plus ti-xs text-heading'></i></span>" +
+      //       '</div>'
+      //   );
     },
 
     buttonClick: function (el, boardId) {
+      // click task card
       const addNew = document.createElement('form');
       addNew.setAttribute('class', 'new-item-form');
       addNew.innerHTML =
@@ -394,6 +426,7 @@
       });
     },
     dragendBoard: async function (el) {
+      // move board
       const kanbanBoardList = document.querySelectorAll('.kanban-board');
       const boardIds = [];
       for (let index = 0; index < kanbanBoardList.length; index++) {
@@ -404,7 +437,7 @@
       await postAjax(prefixUrl + '/task-board-order', { boardIds });
     },
     dropEl: async function (el, target, source, sibling) {
-      console.log(el, target, source, sibling);
+      // move task
       let diffBoard = false;
 
       const targetId = $(target).closest('div.kanban-board').attr('data-id');
@@ -427,20 +460,7 @@
       const boardId = targetId.split('-')[1];
 
       await postAjax(prefixUrl + '/task-order', { taskIds, diffBoard, boardId });
-    },
-
-    context: function (el, event) {
-      console.log('context');
-    }, // callback when any board's item are right clicked
-    dragEl: function (el, source) {
-      console.log('dragEl');
-    }, // callback when any board's item are dragged
-    dragendEl: function (el) {
-      console.log('dragendEl');
-    }, // callback when any board's item stop drag
-    dragBoard: function (el, source) {
-      console.log('dragBoard');
-    } // callback when any board stop drag
+    }
   });
 
   // Kanban Wrapper scrollbar
@@ -455,6 +475,7 @@
   // Render custom items
   if (kanbanItem) {
     kanbanItem.forEach(function (el) {
+      console.log('kanbanitem', el);
       const element = "<span class='kanban-text'>" + el.textContent + '</span>';
       let img = '';
       if (el.getAttribute('data-image') !== null) {
@@ -467,6 +488,12 @@
       }
       el.textContent = '';
 
+      const users = el.getAttribute('data-users');
+      const listings = el.getAttribute('data-listings');
+      const appraisals = el.getAttribute('data-appraisals');
+      const contacts = el.getAttribute('data-contacts');
+      const contracts = el.getAttribute('data-contracts');
+
       if (el.getAttribute('data-badge') !== undefined && el.getAttribute('data-badge-text') !== undefined) {
         el.insertAdjacentHTML(
           'afterbegin',
@@ -474,21 +501,13 @@
         );
       }
       // dev need
-      // if (
-      //   el.getAttribute('data-comments') !== undefined ||
-      //   el.getAttribute('data-due-date') !== undefined ||
-      //   el.getAttribute('data-assigned') !== undefined
-      // ) {
-      //   el.insertAdjacentHTML(
-      //     'beforeend',
-      //     renderFooter(
-      //       el.getAttribute('data-attachments'),
-      //       el.getAttribute('data-comments'),
-      //       el.getAttribute('data-assigned'),
-      //       el.getAttribute('data-members')
-      //     )
-      //   );
-      // }
+      if (
+        el.getAttribute('data-comments') !== undefined ||
+        el.getAttribute('data-due-date') !== undefined ||
+        el.getAttribute('data-assigned') !== undefined
+      ) {
+        el.insertAdjacentHTML('beforeend', renderFooter(users, listings, appraisals, contacts, contracts));
+      }
     });
   }
 
@@ -663,7 +682,7 @@
 
   // Clear comment editor on close
   kanbanSidebar.addEventListener('hidden.bs.offcanvas', function () {
-    kanbanSidebar.querySelector('.ql-editor').firstElementChild.innerHTML = '';
+    // kanbanSidebar.querySelector('.ql-editor').firstElementChild.innerHTML = '';
   });
 
   // Re-init tooltip when offcanvas opens(Bootstrap bug)
@@ -673,6 +692,12 @@
       tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
       });
+    });
+  }
+
+  if (updateBtn) {
+    updateBtn.addEventListener('click', function () {
+      console.log('form subvmit');
     });
   }
 })();

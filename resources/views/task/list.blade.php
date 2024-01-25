@@ -33,7 +33,9 @@
 @section('page-script')
 <script src="{{asset('assets/js/app-kanban-task.js')}}"></script>
 <script>
-
+    function formSubmit() {
+        console.log('form submit');
+    }
 </script>
 @endsection
 
@@ -84,43 +86,70 @@
             <div class="tab-content px-0 pb-0">
                 <!-- Update item/tasks -->
                 <div class="tab-pane fade show active" id="tab-update" role="tabpanel">
-                    <form>
+                    <form method="post" action="{{route('task.update', 1)}}">
+                        @csrf
+                        @method('put')
+                        <input type="hidden" name="task_id" id="task-id">
                         <div class="mb-3">
                             <label class="form-label" for="title">Title</label>
-                            <input type="text" id="title" class="form-control" placeholder="Enter Title" />
+                            <input type="text" id="title" name="name" class="form-control" placeholder="Enter Title" />
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label" for="due-date">Due Date</label>
-                            <input type="text" id="due-date" class="form-control" placeholder="Enter Due Date" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="label"> Label</label>
-                            <select class="select2 select2-label form-select" id="label">
-                                <option data-color="bg-label-success" value="UX">UX</option>
-                                <option data-color="bg-label-warning" value="Images">
-                                    Images
-                                </option>
-                                <option data-color="bg-label-info" value="Info">Info</option>
-                                <option data-color="bg-label-danger" value="Code Review">
-                                    Code Review
-                                </option>
-                                <option data-color="bg-label-secondary" value="App">
-                                    App
-                                </option>
-                                <option data-color="bg-label-primary" value="Charts & Maps">
-                                    Charts & Maps
-                                </option>
+                            <label class="form-label" for="users"> Users</label>
+                            <select class="select2 select2-label form-select" id="users" name="users[]" multiple>
+                                @foreach($users as $user)
+                                <option value="{{$user->id}}">{{$user->name}}</option>
+                                @endforeach
                             </select>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">Assigned</label>
-                            <div class="assigned d-flex flex-wrap"></div>
+                            <label class="form-label" for="listings"> Listing</label>
+                            <select class="select2 select2-label form-select" id="listings" name="listings[]" multiple>
+                                @foreach($listings as $listing)
+                                <option value="{{$listing->id}}">
+                                    {{$listing->address?->unit_number ? $listing->address->unit_number."/" : ""}}{{$listing->address->street}}, {{$listing->address->city}}
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label" for="attachments">Attachments</label>
-                            <input type="file" class="form-control" id="attachments" />
+                            <label class="form-label" for="appraisals"> Appraisal</label>
+                            <select class="select2 select2-label form-select" id="appraisals" name="appraisals[]" multiple>
+                                @foreach($appraisals as $appraisal)
+                                <option value="{{$appraisal->id}}">
+                                    {{$appraisal->address?->unit_number ? $appraisal->address->unit_number."/" : ""}}{{$appraisal->address?->street}}, {{$appraisal->address?->city}} ({{$appraisal->appraisal_value}})
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="mb-4">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="contacts"> Contact</label>
+                            <select class="select2 select2-label form-select" id="contacts" name="contacts[]" multiple>
+                                @foreach($contacts as $contact)
+                                <option value="{{$contact->id}}">
+                                    {{$contact->first_name}}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="contracts"> Contract</label>
+                            <select class="select2 select2-label form-select" id="contracts" name="contracts[]" multiple>
+                                @foreach($contracts as $contract)
+                                <option value="{{$contract->id}}">
+                                    {{$contract->listing?->address?->unit_number ? $contract->listing->address->unit_number."/" : ""}}{{$contract->listing?->address->street}}, {{$contract->listing?->address->city}}
+
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- <div class="mb-4">
                             <label class="form-label">Comment</label>
                             <div class="comment-editor border-bottom-0"></div>
                             <div class="d-flex justify-content-end">
@@ -134,13 +163,13 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="d-flex flex-wrap">
-                            <button type="button" class="btn btn-primary me-3" data-bs-dismiss="offcanvas">
+                            <button type="submit" class="btn btn-primary me-3" id="update-btn" data-bs-dismiss="offcanvas">
                                 Update
                             </button>
-                            <button type="button" class="btn btn-label-danger" data-bs-dismiss="offcanvas">
-                                Delete
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="offcanvas">
+                                Close
                             </button>
                         </div>
                     </form>

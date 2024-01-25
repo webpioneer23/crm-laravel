@@ -17,4 +17,10 @@ class Task extends Model
         'note',
         'priority'
     ];
+
+    public function users()
+    {
+        $user_ids = TaskProperty::where(['task_id' => $this->id, 'type' => 'users'])->pluck('property_id');
+        return User::whereIn('id', $user_ids);
+    }
 }

@@ -2,8 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appraisal;
+use App\Models\Contact;
+use App\Models\Contract;
+use App\Models\Lead;
+use App\Models\Listing;
 use App\Models\Task;
 use App\Models\TaskBoard;
+use App\Models\TaskProperty;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -13,7 +20,19 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return view('task.list');
+        $users = User::all();
+        $listings = Listing::all();
+        $appraisals = Appraisal::all();
+        $contacts = Contact::all();
+        $contracts = Contract::all();
+
+        return view('task.list', compact(
+            'users',
+            'listings',
+            'appraisals',
+            'contacts',
+            'contracts',
+        ));
     }
 
     /**
@@ -57,9 +76,32 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, $id)
     {
-        //
+        $task_id = $request->task_id;
+        $task = Task::find($task_id);
+        if ($task) {
+            $task->name = $request->name;
+            $task->save();
+
+            TaskProperty::where('task_id', $task->id)->delete();
+
+            $property_list = ["users", "listings",  "appraisals",  "contacts",  "contracts"];
+
+            foreach ($property_list as $property) {
+                $list = $request[$property];
+                if ($list) {
+                    foreach ($list as $item) {
+                        TaskProperty::create([
+                            'task_id' => $task->id,
+                            'type' => $property,
+                            'property_id' => $item,
+                        ]);
+                    }
+                }
+            }
+        }
+        return back();
     }
 
     /**
