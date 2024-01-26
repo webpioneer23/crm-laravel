@@ -24,7 +24,6 @@
   console.log({ prefixUrl });
 
   const imgPath = window.imgPath;
-  console.log('Image myResult:', imgPath);
 
   $.ajaxSetup({
     headers: {
@@ -191,20 +190,6 @@
   function renderHeader(color, text) {
     return (
       "<div class='d-flex justify-content-between flex-wrap align-items-center mb-2 pb-1'>" +
-      "<div class='item-badges'> " +
-      '</div>' +
-      '</div>' +
-      renderDropdown() +
-      '</div>'
-    );
-    return (
-      "<div class='d-flex justify-content-between flex-wrap align-items-center mb-2 pb-1'>" +
-      "<div class='item-badges'> " +
-      "<div class='badge rounded-pill bg-label-" +
-      color +
-      "'> " +
-      text +
-      '</div>' +
       '</div>' +
       renderDropdown() +
       '</div>'
@@ -297,23 +282,13 @@
       // click task card, open sidebar modal
       let element = el;
       let taskId = element.getAttribute('data-eid');
-      let users = element.getAttribute('data-users');
-      let listings = element.getAttribute('data-listings');
-      let appraisals = element.getAttribute('data-appraisals');
-      let contacts = element.getAttribute('data-contacts');
-      let contracts = element.getAttribute('data-contracts');
-      users = users.split(',');
-      listings = listings.split(',');
-      appraisals = appraisals.split(',');
-      contacts = contacts.split(',');
-      contracts = contracts.split(',');
 
       let title = taskId ? element.querySelector('.kanban-text').textContent : element.textContent;
       taskId = taskId.split('-');
 
-      const activitiesResponse = await fetch(prefixUrl + `/task/${taskId[1]}`);
-      const activities = await activitiesResponse.json();
-      console.log({ activities });
+      const taskResponse = await fetch(prefixUrl + `/task/${taskId[1]}`);
+      const taskBody = await taskResponse.json();
+      const { activities, users, listings, appraisals, contacts, contracts } = taskBody;
 
       const activityHtml = activities.map(
         active => `
@@ -493,11 +468,12 @@
       const appraisals = el.getAttribute('data-appraisals');
       const contacts = el.getAttribute('data-contacts');
       const contracts = el.getAttribute('data-contracts');
-
+      console.log('assetsPath->>>', assetsPath);
       if (el.getAttribute('data-badge') !== undefined && el.getAttribute('data-badge-text') !== undefined) {
         el.insertAdjacentHTML(
           'afterbegin',
-          renderHeader(el.getAttribute('data-badge'), el.getAttribute('data-badge-text')) + img + element
+          renderDropdown() + element
+          // renderHeader(el.getAttribute('data-badge'), el.getAttribute('data-badge-text')) + img + element
         );
       }
       // dev need

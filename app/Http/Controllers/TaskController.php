@@ -69,8 +69,39 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
+        $properties = TaskProperty::where('task_id', $task->id)->get();
+        $users = [];
+        $listings = [];
+        $appraisals = [];
+        $contacts = [];
+        $contracts = [];
+        foreach ($properties as $property) {
+            if ($property->type == 'users') {
+                array_push($users, $property->property_id);
+            }
+            if ($property->type == 'listings') {
+                array_push($listings, $property->property_id);
+            }
+            if ($property->type == 'appraisals') {
+                array_push($appraisals, $property->property_id);
+            }
+            if ($property->type == 'contacts') {
+                array_push($contacts, $property->property_id);
+            }
+            if ($property->type == 'contracts') {
+                array_push($contracts, $property->property_id);
+            }
+        }
+
         $activities = TaskActivity::where('task_id', $task->id)->with('user')->get()->toArray();
-        return response()->json($activities);
+        return response()->json([
+            'activities' => $activities,
+            'users' => $users,
+            'listings' => $listings,
+            'appraisals' => $appraisals,
+            'contacts' => $contacts,
+            'contracts' => $contracts,
+        ]);
     }
 
     /**
