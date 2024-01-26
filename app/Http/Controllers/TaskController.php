@@ -8,6 +8,7 @@ use App\Models\Contract;
 use App\Models\Lead;
 use App\Models\Listing;
 use App\Models\Task;
+use App\Models\TaskActivity;
 use App\Models\TaskBoard;
 use App\Models\TaskProperty;
 use App\Models\User;
@@ -54,6 +55,12 @@ class TaskController extends Controller
             'name' => $request->name,
             'board_id' => $board_id,
         ]);
+
+        TaskActivity::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->user()->id,
+            'note' => auth()->user()->name . " created the task."
+        ]);
         return $task;
     }
 
@@ -62,7 +69,8 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        //
+        $activities = TaskActivity::where('task_id', $task->id)->with('user')->get()->toArray();
+        return response()->json($activities);
     }
 
     /**
@@ -81,15 +89,38 @@ class TaskController extends Controller
         $task_id = $request->task_id;
         $task = Task::find($task_id);
         if ($task) {
+            $old_name = $task->name;
             $task->name = $request->name;
             $task->save();
-
-            TaskProperty::where('task_id', $task->id)->delete();
+            if ($old_name != $task->name) {
+                TaskActivity::create([
+                    'task_id' => $task->id,
+                    'user_id' => auth()->user()->id,
+                    'note' => auth()->user()->name . " changed name from $old_name to $task->name."
+                ]);
+            }
 
             $property_list = ["users", "listings",  "appraisals",  "contacts",  "contracts"];
 
+            $old_properties_query = TaskProperty::where('task_id', $task->id);
+            $old_properties = $old_properties_query->get();
+            $old_properties_query->delete();
+
+            $old_data = [];
+            foreach ($property_list as $property) {
+                $old_data[$property] = [];
+                foreach ($old_properties as $old_property) {
+                    if ($old_property->type == $property) {
+                        array_push($old_data[$property],  $old_property->property_id);
+                    }
+                }
+            }
+
+            $updated_properties = [];
+
             foreach ($property_list as $property) {
                 $list = $request[$property];
+
                 if ($list) {
                     foreach ($list as $item) {
                         TaskProperty::create([
@@ -99,7 +130,16 @@ class TaskController extends Controller
                         ]);
                     }
                 }
+
+                if ($list != $old_data[$property]) {
+                    array_push($updated_properties, $property);
+                }
             }
+            TaskActivity::create([
+                'task_id' => $task->id,
+                'user_id' => auth()->user()->id,
+                'note' => auth()->user()->name . " updated " . implode(",", $updated_properties) . "."
+            ]);
         }
         return back();
     }
@@ -122,21 +162,40 @@ class TaskController extends Controller
         $diffBoard = $request->diffBoard;
         $boardId = $request->boardId;
 
+        $board = TaskBoard::find($boardId);
+
         foreach ($taskIds as $key => $taskId) {
             $task = Task::find($taskId);
             if ($task) {
                 if ($diffBoard) {
+                    $old_board_id =  $task->board_id;
+                    $old_board = TaskBoard::find($old_board_id);
+
                     $task->update([
                         'priority' => $key + 1,
                         'board_id' => $boardId
                     ]);
+
+                    if ($old_board_id != $boardId) {
+                        TaskActivity::create([
+                            'task_id' => $task->id,
+                            'user_id' => auth()->user()->id,
+                            'note' => auth()->user()->name . " moved from $old_board->title to $board->title."
+                        ]);
+                    }
                 } else {
                     $task->update([
                         'priority' => $key + 1,
                     ]);
+                    TaskActivity::create([
+                        'task_id' => $task->id,
+                        'user_id' => auth()->user()->id,
+                        'note' => auth()->user()->name . " changed task's priority."
+                    ]);
                 }
             }
         }
+
         return response()->json(true);
     }
 }

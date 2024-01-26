@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\TaskActivity;
 use App\Models\TaskBoard;
 use App\Models\TaskProperty;
 use Illuminate\Http\Request;
@@ -42,6 +43,7 @@ class TaskBoardController extends Controller
                         array_push($contracts, $property->property_id);
                     }
                 }
+
                 array_push($result, [
                     'id' => 'task-' . $task->id,
                     'title' => $task->name,

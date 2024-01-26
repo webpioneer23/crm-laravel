@@ -23,6 +23,9 @@
   }
   console.log({ prefixUrl });
 
+  const imgPath = window.imgPath;
+  console.log('Image myResult:', imgPath);
+
   $.ajaxSetup({
     headers: {
       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -290,7 +293,7 @@
       class: 'kanban-title-button btn', // default class of the button
       footer: false // position the button on footer
     },
-    click: function (el) {
+    click: async function (el) {
       // click task card, open sidebar modal
       let element = el;
       let taskId = element.getAttribute('data-eid');
@@ -307,14 +310,26 @@
 
       let title = taskId ? element.querySelector('.kanban-text').textContent : element.textContent;
       taskId = taskId.split('-');
-      // date = element.getAttribute('data-due-date'),
-      // dateObj = new Date(),
-      // year = dateObj.getFullYear(),
-      // dateToUse = date
-      //   ? date + ', ' + year
-      //   : dateObj.getDate() + ' ' + dateObj.toLocaleString('en', { month: 'long' }) + ', ' + year,
-      // label = element.getAttribute('data-badge-text'),
-      // avatars = element.getAttribute('data-assigned');
+
+      const activitiesResponse = await fetch(prefixUrl + `/task/${taskId[1]}`);
+      const activities = await activitiesResponse.json();
+      console.log({ activities });
+
+      const activityHtml = activities.map(
+        active => `
+        <div class="media mb-4 d-flex align-items-start">
+            <div class="avatar me-2 flex-shrink-0 mt-1">
+                <img src="${imgPath}/${active.user.photo}" alt="Avatar" class="rounded-circle" />
+            </div>
+            <div class="media-body">
+                <p class="mb-0">
+                  ${active.note}
+                </p>
+                <small class="text-muted">${moment(active.created_at).format('MMM D, hh:mm A')}</small>
+            </div>
+        </div>
+      `
+      );
 
       // Show kanban offcanvas
       kanbanOffcanvas.show();
@@ -327,22 +342,8 @@
       $('#appraisals').val(appraisals).trigger('change');
       $('#contacts').val(contacts).trigger('change');
       $('#contracts').val(contracts).trigger('change');
-      // kanbanSidebar.querySelector('#due-date').nextSibling.value = dateToUse;
 
-      // ! Using jQuery method to get sidebar due to select2 dependency
-      // $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');
-
-      // Remove & Update assigned
-      // kanbanSidebar.querySelector('.assigned').innerHTML = '';
-      // kanbanSidebar
-      //   .querySelector('.assigned')
-      //   .insertAdjacentHTML(
-      //     'afterbegin',
-      //     renderAvatar(avatars, false, 'xs', '1', el.getAttribute('data-members')) +
-      //       "<div class='avatar avatar-xs ms-1'>" +
-      //       "<span class='avatar-initial rounded-circle bg-label-secondary'><i class='ti ti-plus ti-xs text-heading'></i></span>" +
-      //       '</div>'
-      //   );
+      $('#tab-activity').html(activityHtml);
     },
 
     buttonClick: function (el, boardId) {
@@ -475,7 +476,6 @@
   // Render custom items
   if (kanbanItem) {
     kanbanItem.forEach(function (el) {
-      console.log('kanbanitem', el);
       const element = "<span class='kanban-text'>" + el.textContent + '</span>';
       let img = '';
       if (el.getAttribute('data-image') !== null) {
@@ -637,7 +637,6 @@
       if (kanbanBoardLastChild) {
         const header = kanbanBoardLastChild.querySelector('.kanban-title-board');
         header.insertAdjacentHTML('afterend', renderBoardDropdown());
-        console.log('data order');
         // To make newly added boards title editable
         kanbanBoardLastChild.querySelector('.kanban-title-board').addEventListener('mouseenter', function () {
           this.contentEditable = 'true';

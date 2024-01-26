@@ -31,6 +31,10 @@
 @endsection
 
 @section('page-script')
+<script>
+    window.imgPath = '<?php echo asset('uploads') ?>';
+</script>
+
 <script src="{{asset('assets/js/app-kanban-task.js')}}"></script>
 <script>
     function formSubmit() {

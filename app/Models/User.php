@@ -46,4 +46,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function getFullProfileAttribute()
+    {
+        if ($this->photo) {
+            return asset('uploads/' . $this->photo);
+        }
+        return '';
+    }
 }
