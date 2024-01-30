@@ -199,6 +199,7 @@ class Helpers
 
   public static function amountFormat($amount)
   {
+    \Log::info("amount---", $amount);
     if (!$amount) {
       return 0;
     }
