@@ -77,7 +77,7 @@
             <div class="card-info">
               <h4 class="card-title mb-3">Sale Price</h4>
               <div class="d-flex align-items-baseline mb-1 gap-1">
-                <h4 class="text-primary mb-0"> ${!! Helper::amountFormat($contract->price) !!}</h4>
+                <h4 class="text-primary mb-0"> ${{$contract->price}}</h4>
                 <p class="mb-0"> incl GST</p>
               </div>
             </div>
@@ -141,7 +141,7 @@
             <div class="card-info">
               <h4 class="card-title mb-3">Commission</h4>
               <div class="d-flex align-items-baseline mb-1 gap-1">
-                <h4 class="text-info mb-0">${!! Helper::amountFormat($contract->commission) !!}</h4>
+                <h4 class="text-info mb-0">${{$contract->commission}}</h4>
                 <p class="mb-0">(ex GST)</p>
               </div>
 
@@ -185,7 +185,7 @@
               <dd class="col-sm-8">{{$contract->vendor_name}}</dd>
 
               <dt class="col-sm-4 mb-2 fw-medium text-nowrap">Price:</dt>
-              <dd class="col-sm-8">${!! Helper::amountFormat($contract->price) !!}</dd>
+              <dd class="col-sm-8">${{$contract->price}}</dd>
 
 
               <dt class="col-sm-4 mb-2 fw-medium text-nowrap">Contract Accepted Date:</dt>
@@ -206,7 +206,7 @@
               <dd class="col-sm-8">{!! Helper::dateFormat($contract->deposit_received_date) !!} </dd>
 
               <dt class="col-sm-4 mb-2 fw-medium text-nowrap">Commission (EX GST):</dt>
-              <dd class="col-sm-8">${!! Helper::amountFormat($contract->commission) !!}</dd>
+              <dd class="col-sm-8">${{$contract->commission}}</dd>
             </dl>
           </div>
           <div class="col-xl-6 col-12">
