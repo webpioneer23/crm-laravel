@@ -20,6 +20,7 @@
           <tr>
             <th>No</th>
             <th>Listing</th>
+            <th>Price</th>
             <th>Purchaser Name</th>
             <th>Vendor name</th>
             <th>Purchaser</th>
@@ -36,6 +37,9 @@
               @if($item->listing)
               {{$item->listing->address?->unit_number ? $item->listing->address->unit_number."/" : ""}}{{$item->listing->address->street}}, {{$item->listing->address->city}}
               @endif
+            </td>
+            <td>
+              ${!! Helper::amountFormat($item->price) !!}
             </td>
             <td>
               {{$item->purchaser_name}}
@@ -57,6 +61,7 @@
                 <div class="dropdown-menu">
                   <a class="dropdown-item" href="{{route('contract.edit', $item->id)}}"><i class="ti ti-pencil me-2"></i> Edit</a>
                   <a class="dropdown-item" href="{{route('contract.files', $item->id)}}"><i class="ti ti-files me-2"></i> Files</a>
+                  <a class="dropdown-item" href="{{route('contract.show', $item->id)}}"><i class="ti ti-eye me-2"></i> Overview</a>
                   <a class="dropdown-item" href="javascript:void(0);" onclick="event.preventDefault(); deleteItem('delete-{{$item->id}}');"><i class="ti ti-trash me-2"></i> Delete</a>
                 </div>
               </div>

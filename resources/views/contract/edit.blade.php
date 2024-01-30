@@ -26,6 +26,11 @@
 <script src="{{asset('assets/js/forms-extras.js')}}"></script>
 
 <script>
+  let prefixUrl = '/public';
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    prefixUrl = '';
+  }
+
   const whitelist = [
     'LIM',
     'Due Diligence',
@@ -82,6 +87,14 @@
 
     }
   }
+
+
+  $("#listing_id").change(async function() {
+    const listingId = $(this).val();
+    const listingRes = await fetch(prefixUrl + '/listing/' + listingId);
+    const listing = await listingRes.json();
+    $("#price").val(listing.price)
+  })
 </script>
 
 @endsection
@@ -137,6 +150,17 @@
           <label class="col-sm-2 col-form-label" for="vendor_name">Vendor name</label>
           <div class="col-sm-10">
             <input type="text" name="vendor_name" id="vendor_name" value="{{$contract->vendor_name}}" class="form-control" placeholder="Vendor Name" />
+          </div>
+        </div>
+
+
+        <div class="row mb-3">
+          <label class="col-sm-2 col-form-label" for="price">Price</label>
+          <div class="col-sm-10">
+            <div class="input-group">
+              <input type="text" name="price" id="price" class="form-control numeral-mask" value="{{$contract->price}}" aria-label="">
+              <span class="input-group-text">$</span>
+            </div>
           </div>
         </div>
 

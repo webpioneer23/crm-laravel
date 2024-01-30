@@ -18,7 +18,8 @@ class Contract extends Model
         "deposit_received_date",
         "commission",
         "comment",
-        "listing_id"
+        "listing_id",
+        "price"
     ];
 
     public function getContactsAttribute()

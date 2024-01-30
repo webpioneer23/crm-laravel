@@ -110,7 +110,7 @@ class ContractController extends Controller
      */
     public function show(Contract $contract)
     {
-        //
+        return view('contract.overview', compact('contract'));
     }
 
     /**

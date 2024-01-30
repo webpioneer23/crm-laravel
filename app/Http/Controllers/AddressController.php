@@ -69,7 +69,8 @@ class AddressController extends Controller
      */
     public function show(Address $address)
     {
-        //
+
+        return view('address.overview', compact('address'));
     }
 
     /**

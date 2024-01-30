@@ -219,4 +219,12 @@ class Helpers
     }
     return '';
   }
+
+  public static function dateFormat($date)
+  {
+    if (!$date) {
+      return '';
+    }
+    return date('d/m/Y', strtotime($date));
+  }
 }
