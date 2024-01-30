@@ -200,7 +200,7 @@ class Helpers
   public static function amountFormat($amount)
   {
     \Log::info("amount---" . $amount);
-    if (!$amount) {
+    if (!$amount || !is_numeric($amount)) {
       return 0;
     }
     if ($amount >= 1000000) {
