@@ -199,6 +199,9 @@ class Helpers
 
   public static function amountFormat($amount)
   {
+    if (!$amount) {
+      return 0;
+    }
     if ($amount >= 1000000) {
       return number_format($amount / 1000000, 2) . 'M';
     } elseif ($amount >= 1000) {
