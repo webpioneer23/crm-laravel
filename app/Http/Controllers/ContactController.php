@@ -113,7 +113,9 @@ class ContactController extends Controller
      */
     public function show(Contact $contact)
     {
-        //
+        $relation_list = ContactRelationship::where('source_id', $contact->id)->get();
+
+        return view('contact.overview', compact('contact', 'relation_list'));
     }
 
     /**

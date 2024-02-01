@@ -61,4 +61,9 @@ class Contact extends Model
         }
         return $tags;
     }
+
+    public function residingAddress()
+    {
+        return $this->hasOne(Address::class, 'id', 'residing_address');
+    }
 }

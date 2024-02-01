@@ -102,6 +102,17 @@ class Listing extends Model
         return $tags;
     }
 
+    public function getFullTagNamesAttribute()
+    {
+        $listing_tags = ListingTag::where('listing_id', $this->id)->get('tag_id');
+        $tags = Tag::whereIn('id', $listing_tags)->get();
+        $tag_names = [];
+        foreach ($tags as $tag) {
+            array_push($tag_names, $tag->name);
+        }
+        return $tag_names;
+    }
+
     public function getPhotosAttribute()
     {
         $photos = AFile::where(['target_id' => $this->id, 'type' => 'listing_photo'])->orderBy('priority', 'DESC')->get();

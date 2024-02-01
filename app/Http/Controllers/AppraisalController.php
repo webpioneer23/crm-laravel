@@ -88,7 +88,8 @@ class AppraisalController extends Controller
      */
     public function show(Appraisal $appraisal)
     {
-        //
+
+        return view('appraisal.overview', compact('appraisal'));
     }
 
     /**
@@ -124,10 +125,6 @@ class AppraisalController extends Controller
             "energy_efficiency_rating",
         );
 
-        if ($appraisal->property_id) {
-            Property::find($appraisal->property_id)->update($property);
-        }
-
         $detail = $request->only(
             'address_id',
             'contact_id',
@@ -141,6 +138,14 @@ class AppraisalController extends Controller
             'reason_lost',
             'interest',
         );
+
+        if ($appraisal->property_id) {
+            Property::find($appraisal->property_id)->update($property);
+        } else {
+            $newProperty = Property::create($property);
+            $detail['property_id'] = $newProperty->id;
+        }
+
         $appraisal->update($detail);
         $history = [
             'user_id' => auth()->user()->id,

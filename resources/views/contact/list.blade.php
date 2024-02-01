@@ -118,6 +118,7 @@
               <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
               <div class="dropdown-menu">
                 <a class="dropdown-item" href="{{route('contact.edit', $item->id)}}"><i class="ti ti-pencil me-2"></i> Edit</a>
+                <a class="dropdown-item" href="{{route('contact.show', $item->id)}}"><i class="ti ti-eye me-2"></i> Overview</a>
                 <a class="dropdown-item" href="javascript:void(0);" onclick="event.preventDefault(); deleteItem('delete-{{$item->id}}');"><i class="ti ti-trash me-2"></i> Delete</a>
               </div>
             </div>

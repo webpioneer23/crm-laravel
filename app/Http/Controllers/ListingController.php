@@ -87,7 +87,7 @@ class ListingController extends Controller
      */
     public function show(Listing $listing)
     {
-        return $listing;
+        return view('listing.overview', compact('listing'));
     }
 
     /**
@@ -127,7 +127,6 @@ class ListingController extends Controller
         ];
 
         HistoryService::addRecord($history);
-
 
         if ($data['step'] == 2) {
             if (isset($data['featured_property']) && $data['featured_property'] == 'on') {

@@ -20,9 +20,11 @@
 @endsection
 
 @section('content')
-<h4 class="py-3 mb-4"><span class="text-muted fw-light">Address/</span> Edit</h4>
+<h4 class="py-3 mb-4"><span class="text-muted fw-light">Address/</span> Overview</h4>
 
-
+<div class="d-flex flex-column flex-sm-row align-items-center justify-content-sm-end mb-4 text-center text-sm-start gap-2">
+    <a href="{{route('address.edit', $address->id)}}" class="btn btn-primary btn-label-info">Edit Address</a>
+</div>
 
 <div class="row">
     <div class="col-xl-12">

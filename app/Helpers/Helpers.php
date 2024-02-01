@@ -199,7 +199,6 @@ class Helpers
 
   public static function amountFormat($amount)
   {
-    \Log::info("amount---" . $amount);
     if (!$amount || !is_numeric($amount)) {
       return 0;
     }
